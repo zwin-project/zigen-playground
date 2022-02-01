@@ -1,5 +1,5 @@
 interface Resource {
-  serialize: () => object;
+  serialize: () => object
 }
 
-export default Resource;
+export default Resource

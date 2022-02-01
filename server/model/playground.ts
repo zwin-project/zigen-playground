@@ -1,17 +1,16 @@
-import Resource from "./resource";
+import Resource from './resource'
 
 class Playground {
-  private static instance: Playground = new Playground();
-
-  static get = (): Playground => Playground.instance;
-
   get resources() {
-    return this._resources;
+    return this._resources
   }
 
-  private _resources: Resource[] = [];
+  private _resources: Resource[] = []
 
-  private constructor() {}
+  /* eslint-disable-next-line no-use-before-define */
+  private static instance: Playground = new Playground()
+
+  static get = (): Playground => Playground.instance
 }
 
-export default Playground;
+export default Playground
