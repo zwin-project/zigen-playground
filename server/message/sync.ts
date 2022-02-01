@@ -1,7 +1,5 @@
 class SyncMessage {
-  type = "sync" as const;
-
-  constructor(json: any) {}
+  type = 'sync' as const
 }
 
-export default SyncMessage;
+export default SyncMessage
