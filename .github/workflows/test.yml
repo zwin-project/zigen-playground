@@ -1,0 +1,41 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  test:
+    name: 'Test'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - uses: actions/checkout@v2
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install Dependencies
+        run: yarn install
+        working-directory: ./server
+
+      - name: Run Tests
+        run: yarn test
+        working-directory: ./server
