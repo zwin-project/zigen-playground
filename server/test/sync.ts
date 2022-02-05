@@ -16,11 +16,11 @@ describe('sync message', () => {
     const router = new Router()
     const client = new TestClient()
     router.add(client)
-    client.emitMessage(JSON.stringify({ type: 'sync' }))
+    client.emitMessage(JSON.stringify({ action: 'sync' }))
     expect(client.sendCount).to.equal(1)
     const sendData = JSON.parse(client.sendMessage)
 
-    expect(sendData.type).to.equal('all-resources')
+    expect(sendData.action).to.equal('sync')
     expect(sendData.data).length(2)
 
     expect(sendData.data[0]).deep.equal(cuboid1.serialize())

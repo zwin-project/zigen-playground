@@ -1,11 +1,11 @@
 import Playground from '../model/playground'
 import Client from '../model/client'
-import SyncMessage from '../message/sync'
-import AllObjectsEvent from '../event/all-resources'
+import SyncRequest from '../request/sync'
+import SyncEvent from '../event/sync'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const syncController = (client: Client, message: SyncMessage) => {
+export const syncController = (client: Client, request: SyncRequest) => {
   const playground = Playground.get()
-  const event = new AllObjectsEvent(playground)
+  const event = new SyncEvent(playground)
   event.send(client)
 }
