@@ -58,11 +58,11 @@ app.get('/', (req, res) => {
 const playground = Playground.get()
 
 playground.resources.push(
-  new Cuboid(new Vector3(0, 0, 0), new Vector3(0.25, 0.25, 0.25))
+  new Cuboid(new Vector3(0, 0, 0), new Vector3(0.05, 0.05, 0.05))
 )
 
 playground.resources.push(
-  new Cuboid(new Vector3(-0.1, 0.2, 0.12), new Vector3(0.15, 0.19, 0.22))
+  new Cuboid(new Vector3(-0.1, 0.06, 0.12), new Vector3(0.09, 0.11, 0.02))
 )
 
 server.listen(PORT, () => console.log(`[*] Server listening on port ${PORT}`))

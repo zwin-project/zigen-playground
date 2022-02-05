@@ -53,7 +53,7 @@ class Window : public zukou::CuboidWindow {
   }
 
   virtual void Configured([[maybe_unused]] uint32_t serial) final {
-    playground_->SetGeometry(half_size(), glm::vec3());
+    playground_->SetGeometry(half_size(), glm::vec3(), glm::quat());
   }
 
   void OnError(std::string reason) {

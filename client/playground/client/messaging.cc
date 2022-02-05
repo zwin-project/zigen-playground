@@ -24,8 +24,6 @@ bool Messaging::Run(std::string host, std::string port, std::string path) {
 
   auto results = resolver_.resolve(host, port);
 
-  beast::get_lowest_layer(ws_).expires_after(std::chrono::seconds(30));
-
   auto endpoint = beast::get_lowest_layer(ws_).connect(results);
 
   ws_.set_option(
