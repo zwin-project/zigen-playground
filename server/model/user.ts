@@ -13,13 +13,13 @@ class User {
       return null
     }
 
-    const id = parseInt(url.searchParams.get('id') as string)
-    if (isNaN(id)) return null
+    const id = url.searchParams.get('id')
+    if (!id) return null
 
     return new User(id)
   }
 
-  private constructor(public id: number) {}
+  private constructor(public id: string) {}
 }
 
 export default User

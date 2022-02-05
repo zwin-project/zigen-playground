@@ -3,7 +3,7 @@ import User from './user'
 import { WebSocket } from 'ws'
 
 interface Client {
-  onMessage: (func: (client: Client, message: string) => void) => void
+  onRequest: (func: (client: Client, message: string) => void) => void
 
   close: (code?: number, data?: string) => void
 
@@ -11,7 +11,10 @@ interface Client {
 }
 
 export class WebSocketClient implements Client {
-  static create = (ws: WebSocket, req: http.IncomingMessage): Client | null => {
+  static create = (
+    ws: WebSocket,
+    req: http.IncomingMessage
+  ): WebSocketClient | null => {
     const user = User.fromRequest(req)
     if (!user) return null
     return new WebSocketClient(user, ws)
@@ -26,10 +29,10 @@ export class WebSocketClient implements Client {
     // TODO:
   }
 
-  onMessage = (func: (client: Client, data: string) => void) => {
-    this.ws.on('message', (data, isBinary) => {
+  onRequest = (func: (client: Client, message: string) => void) => {
+    this.ws.on('message', (message, isBinary) => {
       if (isBinary) return this.close(4400, 'Bad Request')
-      func(this, data.toString())
+      func(this, message.toString())
     })
   }
 

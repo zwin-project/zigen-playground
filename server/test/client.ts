@@ -10,7 +10,7 @@ class TestClient implements Client {
   sendMessage = ''
   sendCount = 0
 
-  onMessage = (func: (client: Client, message: string) => void) => {
+  onRequest = (func: (client: Client, message: string) => void) => {
     this.emitter.on('message', func)
   }
 

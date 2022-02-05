@@ -8,5 +8,6 @@ project(
 
 dep_zukou = dependency('libzukou')
 dep_glm = dependency('glm')
+dep_boost = dependency('boost', modules : ['thread'])
 
 subdir('client')

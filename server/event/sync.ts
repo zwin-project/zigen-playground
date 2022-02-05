@@ -1,12 +1,12 @@
 import Client from '../model/client'
 import Playground from '../model/playground'
 
-class AllObjectsEvent {
+class SyncEvent {
   constructor(private playground: Playground) {}
 
   send = (client: Client) => {
     const data = {
-      type: 'all-resources',
+      action: 'sync',
       data: this.playground.resources.map((resource) => resource.serialize()),
     }
     const json = JSON.stringify(data)
@@ -14,4 +14,4 @@ class AllObjectsEvent {
   }
 }
 
-export default AllObjectsEvent
+export default SyncEvent

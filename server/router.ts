@@ -1,18 +1,18 @@
 import Client from './model/client'
-import Message from './message/message'
+import WebSocketRequest from './request/request'
 import { syncController } from './controller/sync'
 
 class Router {
   add = (client: Client) => {
-    client.onMessage(this.onMessage)
+    client.onRequest(this.onRequest)
   }
 
-  onMessage = (client: Client, data: string) => {
-    const message = Message.parse(data)
+  onRequest = (client: Client, data: string) => {
+    const request = WebSocketRequest.parse(data)
 
-    if (message.type === 'sync') {
-      syncController(client, message)
-    } else if (message.type === 'invalid') {
+    if (request.action === 'sync') {
+      syncController(client, request)
+    } else if (request.action === 'invalid') {
       client.close(4400, 'Bad Request')
     } else {
       client.close(1011, 'Internal Server Error')
