@@ -25,9 +25,9 @@ Playground::Playground(std::shared_ptr<zukou::Application> app,
       remote_port_(remote_port),
       user_id_(user_id) {}
 
-void Playground::SetGeometry(glm::vec3 half_size, glm::vec3 position) {
-  half_size_ = half_size;
-  position_ = position;
+void Playground::SetGeometry(
+    glm::vec3 half_size, glm::vec3 position, glm::quat quaternion) {
+  view_->SetGeometry(half_size, position, quaternion);
 }
 
 bool Playground::Init() {
@@ -49,13 +49,6 @@ bool Playground::Init() {
 bool Playground::Draw() { return view_->Draw(); }
 
 float Playground::Intersect(glm::vec3 origin, glm::vec3 direction) {
-  glm::mat4 transform(1);
-  transform = glm::translate(transform, position_);
-
-  if (zukou::entities::intersection::ray_obb(
-          origin, direction, half_size_, transform) < -1)
-    return false;
-
   return view_->Intersect(origin, direction);
 }
 
@@ -73,22 +66,12 @@ void Playground::RayButton(
   view_->RayButton(serial, time, button, pressed);
 }
 
-void Playground::NoopEvent() {
-  std::cerr << "Playground Noop Action!!" << std::endl;
-}
+void Playground::NoopEvent() { std::cerr << "[event] noop" << std::endl; }
 
 void Playground::SyncEvent(
     std::vector<std::shared_ptr<model::Resource>> resources) {
-  std::cerr << "Playground Sync Action!!" << std::endl;
-  for (auto resource : resources) {
-    std::cerr << resource->type << ": ";
-    if (resource->type == "cuboid") {
-      auto cuboid = std::dynamic_pointer_cast<model::Cuboid>(resource);
-      std::cerr << glm::to_string(cuboid->position) << ", "
-                << glm::to_string(cuboid->half_size);
-    }
-    std::cerr << std::endl;
-  }
+  std::cerr << "[event] sync" << std::endl;
+  view_->Sync(resources);
 }
 
 void Playground::Connect([[maybe_unused]] const error_signal signal,

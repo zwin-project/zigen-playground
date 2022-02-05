@@ -27,7 +27,8 @@ class Playground : public std::enable_shared_from_this<Playground>,
       std::string remote_host, std::string remote_port, std::string user_id);
 
  public:
-  void SetGeometry(glm::vec3 half_size, glm::vec3 position);
+  void SetGeometry(
+      glm::vec3 half_size, glm::vec3 position, glm::quat quaternion);
 
   virtual bool Init() final;
   virtual bool Draw() final;
@@ -54,8 +55,6 @@ class Playground : public std::enable_shared_from_this<Playground>,
   void ClientErrorEvent(std::string reason);
 
  private:
-  glm::vec3 half_size_;
-  glm::vec3 position_;
   std::shared_ptr<zukou::Application> app_;
   std::shared_ptr<zukou::VirtualObject> virtual_object_;
   std::shared_ptr<PlaygroundView> view_;
