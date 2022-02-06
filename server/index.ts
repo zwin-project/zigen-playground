@@ -1,6 +1,6 @@
 import express from 'express'
 import http from 'http'
-import log4js, { Logger } from 'log4js'
+import log4js from 'log4js'
 import { URL } from 'url'
 import { WebSocketServer } from 'ws'
 import { Vector3 } from './math/vector'
@@ -19,6 +19,11 @@ const LOG_CONFIG = process.env.LOG_CONF || './config/log4js.json'
 
 log4js.configure(LOG_CONFIG)
 app.use(log4js.connectLogger(log4js.getLogger('express'), {}))
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(express.static('public'))
+}
+
 const loggeer = log4js.getLogger('main')
 
 wss.on('connection', (ws, req) => {
