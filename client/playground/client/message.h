@@ -10,6 +10,7 @@ namespace message {
 
 enum class Action : uint32_t {
   kUnset,
+  kNewResourceRequest,
   kNoopEvent,
   kSyncEvent,
   kSyncRequest,

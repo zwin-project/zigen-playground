@@ -5,6 +5,8 @@
 
 #include <glm/gtx/quaternion.hpp>
 
+#include "dnd-message-parser.h"
+
 namespace zigen_playground {
 
 PlaygroundView::PlaygroundView(std::shared_ptr<zukou::Application> app,
@@ -59,6 +61,8 @@ void PlaygroundView::DataDeviceLeave() {
 
 void PlaygroundView::DataDeviceMotion(
     uint32_t time, glm::vec3 origin, glm::vec3 direction) {
+  last_data_device_origin_ = origin;
+  last_data_device_direction_ = direction;
   if (auto data_offer = data_offer_.lock()) {
     for (auto mime_type : data_offer->mime_types()) {
       if (mime_type == "text/plain") {
@@ -86,6 +90,8 @@ void PlaygroundView::DataDeviceDrop() {
 void PlaygroundView::TextDropped(int fd) {
   char buf[100];
   std::string str;
+  DndMessageParser parser;
+
   while (true) {
     int size = read(fd, buf, 100);
     if (size <= 0) break;
@@ -93,7 +99,28 @@ void PlaygroundView::TextDropped(int fd) {
     str += fragment;
   }
 
-  (void)str;
+  auto message = parser.Parse(str);
+
+  if (message->type() == DndMessageType::kError) return;
+
+  if (message->type() == DndMessageType::kNewResource) {
+    auto new_resource_message =
+        std::dynamic_pointer_cast<DndNewResourceMessage>(message);
+
+    glm::mat4 transform(1);
+    transform = glm::translate(transform, position_);
+    transform = transform * glm::toMat4(quaternion_);
+
+    float ray_distance =
+        zukou::entities::intersection::ray_obb(last_data_device_origin_,
+            last_data_device_direction_, half_size_, transform);
+
+    auto position = last_data_device_origin_ +
+                    last_data_device_direction_ * (ray_distance + 0.04f);
+
+    dnd_new_resource_callback(new_resource_message->resource_type(),
+        glm::vec3(glm::inverse(transform) * glm::vec4(position, 1.0)));
+  }
 }
 
 void PlaygroundView::SetGeometry(

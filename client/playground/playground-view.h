@@ -3,6 +3,7 @@
 
 #include <zigen-playground.h>
 
+#include <functional>
 #include <memory>
 
 #include "cuboid-view.h"
@@ -39,6 +40,10 @@ class PlaygroundView : public zukou::objects::IObject {
 
   void Sync(std::vector<std::shared_ptr<model::Resource>> resources);
 
+  // callbacks
+  std::function<void(std::string resource_type, glm::vec3 position)>
+      dnd_new_resource_callback;
+
  private:
   std::shared_ptr<zukou::Application> app_;
   std::shared_ptr<zukou::VirtualObject> virtual_object_;
@@ -48,6 +53,8 @@ class PlaygroundView : public zukou::objects::IObject {
   glm::vec3 position_;
   glm::quat quaternion_;
 
+  glm::vec3 last_data_device_origin_;
+  glm::vec3 last_data_device_direction_;
   std::weak_ptr<zukou::DataOffer> data_offer_;
   uint32_t data_device_enter_serial_;
 };

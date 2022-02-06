@@ -1,6 +1,7 @@
 import http from 'http'
 import User from './user'
 import { WebSocket } from 'ws'
+import Playground from './playground'
 
 interface Client {
   onRequest: (func: (client: Client, message: string) => void) => void
@@ -22,11 +23,14 @@ export class WebSocketClient implements Client {
 
   private constructor(public user: User, private ws: WebSocket) {
     ws.on('close', this.onClose)
+    const playground = Playground.get()
+    playground.pushClient(this)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private onClose = (code: number, reason: Buffer) => {
-    // TODO:
+    const playground = Playground.get()
+    playground.removeClient(this)
   }
 
   onRequest = (func: (client: Client, message: string) => void) => {
