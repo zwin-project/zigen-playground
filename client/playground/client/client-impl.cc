@@ -11,6 +11,7 @@
 #include "message-parser.h"
 #include "message.h"
 #include "message/error.h"
+#include "message/new-resource-request.h"
 #include "message/noop-event.h"
 #include "message/sync-event.h"
 #include "message/sync-request.h"
@@ -80,6 +81,13 @@ bool Client::Impl::Connect() {
 
 void Client::Impl::SyncRequest() {
   auto request = std::make_shared<message::SyncRequest>();
+  NotifyRequest(request);
+}
+
+void Client::Impl::NewResourceRequest(
+    std::string resource_type, glm::vec3 position) {
+  auto request =
+      std::make_shared<message::NewResourceRequest>(resource_type, position);
   NotifyRequest(request);
 }
 
@@ -189,22 +197,24 @@ void Client::Impl::Run() {
         request_message_buffer.Push(
             (char *)(input_buffer.data().data()), bytes_transferred);
 
+        input_buffer.consume(bytes_transferred);
+
         while (true) {
           if (handling_request == message::Action::kUnset) {
-            if (request_message_buffer.Size() < sizeof(message::Action)) return;
+            if (request_message_buffer.Size() < sizeof(message::Action)) break;
             message::Action action;
             request_message_buffer.Pop(
                 reinterpret_cast<char *>(&action), sizeof(message::Action));
             handling_request = action;
             request_message_size = 0;
           } else if (request_message_size == 0) {
-            if (request_message_buffer.Size() < sizeof(uint32_t)) return;
+            if (request_message_buffer.Size() < sizeof(uint32_t)) break;
             uint32_t message_size;
             request_message_buffer.Pop(
                 reinterpret_cast<char *>(&message_size), sizeof(uint32_t));
             request_message_size = message_size;
           } else {
-            if (request_message_buffer.Size() < request_message_size) return;
+            if (request_message_buffer.Size() < request_message_size) break;
             void *data = malloc(request_message_size);
             request_message_buffer.Pop(
                 reinterpret_cast<char *>(data), request_message_size);
@@ -213,6 +223,11 @@ void Client::Impl::Run() {
               auto sync_request = message::SyncRequest();
               sync_request.Load(data);
               messaging->Write(sync_request.ToJson());
+            } else if (handling_request ==
+                       message::Action::kNewResourceRequest) {
+              auto new_resource_request = message::NewResourceRequest();
+              new_resource_request.Load(data);
+              messaging->Write(new_resource_request.ToJson());
             }
 
             free(data);

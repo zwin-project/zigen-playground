@@ -32,6 +32,7 @@ deps_zigen_playground = [
 
 srcs_zigen_playground = [
   'cuboid-view.cc',
+  'dnd-message-parser.cc',
   'playground.cc',
   'playground-view.cc',
   zigen_client_protocol_h,

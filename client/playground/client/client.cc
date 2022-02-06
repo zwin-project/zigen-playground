@@ -21,6 +21,10 @@ bool Client::Connect() { return pimpl_->Connect(); }
 
 void Client::SyncRequest() { pimpl_->SyncRequest(); }
 
+void Client::NewResourceRequest(std::string resource_type, glm::vec3 position) {
+  pimpl_->NewResourceRequest(resource_type, position);
+}
+
 void Client::ConnectNoopEventSignal(std::function<void()> observer) {
   pimpl_->noop_event_signal.connect(observer);
 }

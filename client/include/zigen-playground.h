@@ -61,6 +61,8 @@ class Playground : public std::enable_shared_from_this<Playground>,
   void SyncEvent(std::vector<std::shared_ptr<model::Resource>> resources);
   void ClientErrorEvent(std::string reason);
 
+  void DndNewResource(std::string resource_type, glm::vec3 position);
+
  private:
   std::shared_ptr<zukou::Application> app_;
   std::shared_ptr<zukou::VirtualObject> virtual_object_;

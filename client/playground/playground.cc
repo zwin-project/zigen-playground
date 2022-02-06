@@ -41,6 +41,9 @@ bool Playground::Init() {
   client_->ConnectErrorSignal(
       std::bind(&Playground::ClientErrorEvent, self, std::placeholders::_1));
 
+  view_->dnd_new_resource_callback = std::bind(&Playground::DndNewResource,
+      self, std::placeholders::_1, std::placeholders::_2);
+
   if (client_->Connect() == false) return false;
   client_->SyncRequest();
   return view_->Init();
@@ -95,6 +98,12 @@ void Playground::Connect([[maybe_unused]] const error_signal signal,
 
 void Playground::ClientErrorEvent(std::string reason) {
   if (error_callback_) error_callback_(reason);
+}
+
+void Playground::DndNewResource(std::string resource_type, glm::vec3 position) {
+  std::cerr << "[dnd event] new resource " << resource_type
+            << " pos: " << glm::to_string(position) << std::endl;
+  client_->NewResourceRequest(resource_type, position);
 }
 
 }  // namespace zigen_playground

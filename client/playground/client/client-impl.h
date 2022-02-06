@@ -26,6 +26,7 @@ class Client::Impl : public std::enable_shared_from_this<Impl> {
 
   bool Connect();
   void SyncRequest();
+  void NewResourceRequest(std::string resource_type, glm::vec3 position);
 
   boost::signals2::signal<void()> noop_event_signal;
   boost::signals2::signal<void(std::vector<std::shared_ptr<model::Resource>>)>

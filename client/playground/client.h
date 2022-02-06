@@ -31,6 +31,7 @@ class Client : public std::enable_shared_from_this<Client> {
   void ConnectErrorSignal(std::function<void(std::string)> observer);
 
   void SyncRequest();
+  void NewResourceRequest(std::string resource_type, glm::vec3 position);
 
  private:
   Client(std::shared_ptr<zukou::Application> app, std::string remote_host,
