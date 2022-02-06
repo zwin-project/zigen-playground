@@ -25,6 +25,15 @@ class PlaygroundView : public zukou::objects::IObject {
   virtual void RayButton(uint32_t serial, uint32_t time, uint32_t button,
       bool pressed) override final;
 
+  virtual void DataDeviceEnter(uint32_t serial,
+      std::weak_ptr<zukou::DataOffer> data_offer) override final;
+  virtual void DataDeviceLeave() override final;
+  virtual void DataDeviceMotion(
+      uint32_t time, glm::vec3 origin, glm::vec3 direction) override final;
+  virtual void DataDeviceDrop() override final;
+
+  void TextDropped(int fd);
+
   void SetGeometry(
       glm::vec3 half_size, glm::vec3 position, glm::quat quaternion);
 
@@ -38,6 +47,9 @@ class PlaygroundView : public zukou::objects::IObject {
   glm::vec3 half_size_;
   glm::vec3 position_;
   glm::quat quaternion_;
+
+  std::weak_ptr<zukou::DataOffer> data_offer_;
+  uint32_t data_device_enter_serial_;
 };
 
 }  // namespace zigen_playground

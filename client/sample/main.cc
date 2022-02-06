@@ -52,6 +52,21 @@ class Window : public zukou::CuboidWindow {
     object_group_->RayButton(serial, time, button, pressed);
   }
 
+  virtual void DataDeviceEnter(uint32_t serial,
+      [[maybe_unused]] glm::vec3 origin, [[maybe_unused]] glm::vec3 direction,
+      std::weak_ptr<zukou::DataOffer> data_offer) override final {
+    object_group_->DataDeviceEnter(serial, data_offer);
+  }
+
+  virtual void DataDeviceLeave() { object_group_->DataDeviceLeave(); }
+
+  virtual void DataDeviceMotion(
+      uint32_t time, glm::vec3 origin, glm::vec3 direction) {
+    object_group_->DataDeviceMotion(time, origin, direction);
+  }
+
+  virtual void DataDeviceDrop() { object_group_->DataDeviceDrop(); }
+
   virtual void Configured([[maybe_unused]] uint32_t serial) final {
     playground_->SetGeometry(half_size(), glm::vec3(), glm::quat());
   }
@@ -91,7 +106,6 @@ class SignalEvent : public zukou::PollEvent {
     fd_ = signalfd(-1, &mask, 0);
     op_ = EPOLL_CTL_ADD;
     epoll_event_.events = EPOLLIN;
-    epoll_event_.data.ptr = this;
   }
 
   virtual bool Done([[maybe_unused]] struct epoll_event *ev) override final {

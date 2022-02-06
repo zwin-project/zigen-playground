@@ -1,6 +1,9 @@
 #include "playground-view.h"
 
+#include <zigen-client-protocol.h>
 #include <zigen-playground.h>
+
+#include <glm/gtx/quaternion.hpp>
 
 namespace zigen_playground {
 
@@ -15,13 +18,12 @@ bool PlaygroundView::Init() { return object_group_->Init(); }
 bool PlaygroundView::Draw() { return object_group_->Draw(); }
 
 float PlaygroundView::Intersect(glm::vec3 origin, glm::vec3 direction) {
-  (void)origin;
-  (void)direction;
   glm::mat4 transform(1);
   transform = glm::translate(transform, position_);
+  transform = transform * glm::toMat4(quaternion_);
 
   return zukou::entities::intersection::ray_obb(
-             origin, direction, half_size_, transform) < -1;
+      origin, direction, half_size_, transform);
 }
 
 void PlaygroundView::RayEnter() {}
@@ -36,6 +38,62 @@ void PlaygroundView::RayMotion(
 void PlaygroundView::RayButton(
     uint32_t serial, uint32_t time, uint32_t button, bool pressed) {
   object_group_->RayButton(serial, time, button, pressed);
+}
+
+void PlaygroundView::DataDeviceEnter(
+    uint32_t serial, std::weak_ptr<zukou::DataOffer> data_offer) {
+  if (auto offer = data_offer.lock()) {
+    offer->SetActions(ZGN_DATA_DEVICE_MANAGER_DND_ACTION_MOVE |
+                          ZGN_DATA_DEVICE_MANAGER_DND_ACTION_COPY,
+        ZGN_DATA_DEVICE_MANAGER_DND_ACTION_COPY);
+  }
+  data_offer_ = data_offer;
+  data_device_enter_serial_ = serial;
+  object_group_->DataDeviceEnter(serial, data_offer);
+}
+
+void PlaygroundView::DataDeviceLeave() {
+  data_offer_.reset();
+  object_group_->DataDeviceLeave();
+}
+
+void PlaygroundView::DataDeviceMotion(
+    uint32_t time, glm::vec3 origin, glm::vec3 direction) {
+  if (auto data_offer = data_offer_.lock()) {
+    for (auto mime_type : data_offer->mime_types()) {
+      if (mime_type == "text/plain") {
+        data_offer->Accept(data_device_enter_serial_, mime_type);
+        break;
+      }
+    }
+  }
+  object_group_->DataDeviceMotion(time, origin, direction);
+}
+
+void PlaygroundView::DataDeviceDrop() {
+  if (auto data_offer = data_offer_.lock()) {
+    for (auto mime_type : data_offer->mime_types()) {
+      if (mime_type == "text/plain") {
+        data_offer->Receive(mime_type, std::bind(&PlaygroundView::TextDropped,
+                                           this, std::placeholders::_1));
+        break;
+      }
+    }
+  }
+  object_group_->DataDeviceDrop();
+}
+
+void PlaygroundView::TextDropped(int fd) {
+  char buf[100];
+  std::string str;
+  while (true) {
+    int size = read(fd, buf, 100);
+    if (size <= 0) break;
+    std::string fragment(buf, size);
+    str += fragment;
+  }
+
+  (void)str;
 }
 
 void PlaygroundView::SetGeometry(

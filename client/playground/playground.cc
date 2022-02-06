@@ -66,6 +66,20 @@ void Playground::RayButton(
   view_->RayButton(serial, time, button, pressed);
 }
 
+void Playground::DataDeviceEnter(
+    uint32_t serial, std::weak_ptr<zukou::DataOffer> data_offer) {
+  view_->DataDeviceEnter(serial, data_offer);
+}
+
+void Playground::DataDeviceLeave() { view_->DataDeviceLeave(); }
+
+void Playground::DataDeviceMotion(
+    uint32_t time, glm::vec3 origin, glm::vec3 direction) {
+  view_->DataDeviceMotion(time, origin, direction);
+}
+
+void Playground::DataDeviceDrop() { view_->DataDeviceDrop(); }
+
 void Playground::NoopEvent() { std::cerr << "[event] noop" << std::endl; }
 
 void Playground::SyncEvent(

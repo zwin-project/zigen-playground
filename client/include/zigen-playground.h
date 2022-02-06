@@ -40,6 +40,13 @@ class Playground : public std::enable_shared_from_this<Playground>,
   virtual void RayButton(
       uint32_t serial, uint32_t time, uint32_t button, bool pressed) final;
 
+  virtual void DataDeviceEnter(uint32_t serial,
+      std::weak_ptr<zukou::DataOffer> data_offer) override final;
+  virtual void DataDeviceLeave() override final;
+  virtual void DataDeviceMotion(
+      uint32_t time, glm::vec3 origin, glm::vec3 direction) override final;
+  virtual void DataDeviceDrop() override final;
+
   struct error_signal {};
 
   void Connect(

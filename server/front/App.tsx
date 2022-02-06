@@ -1,5 +1,5 @@
 import React from 'react'
-import Paper, { PaperProps } from '@mui/material/Paper'
+import Paper from '@mui/material/Paper'
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -24,7 +24,6 @@ type DraggablePaperProps = {
 
 const DraggablePaper: React.FC<DraggablePaperProps> = ({ data, children }) => {
   const onDragStart: React.DragEventHandler<HTMLDivElement> = (ev) => {
-    ev.dataTransfer.setData('zigen-playground/resource', data)
     ev.dataTransfer.setData('text/plain', data)
   }
   return (
@@ -41,10 +40,24 @@ const App: React.FC = () => {
       <StyledContainer maxWidth="md">
         <Grid container spacing={2}>
           <Grid item xs={4}>
-            <DraggablePaper data="cuboid">Cuboid</DraggablePaper>
+            <DraggablePaper
+              data={JSON.stringify({
+                action: 'new-resource',
+                data: { type: 'cuboid' },
+              })}
+            >
+              Cuboid
+            </DraggablePaper>
           </Grid>
           <Grid item xs={4}>
-            <DraggablePaper data="sphere">Sphere</DraggablePaper>
+            <DraggablePaper
+              data={JSON.stringify({
+                action: 'new-resource',
+                data: { type: 'sphere' },
+              })}
+            >
+              Sphere
+            </DraggablePaper>
           </Grid>
         </Grid>
       </StyledContainer>

@@ -73,9 +73,9 @@ bool CuboidView::Init() {
 bool CuboidView::Draw() { return true; }
 
 float CuboidView::Intersect(glm::vec3 origin, glm::vec3 direction) {
-  (void)origin;
-  (void)direction;
-  return -1;
+  auto transform = GetTransformMatrix();
+  return zukou::entities::intersection::ray_obb(
+      origin, direction, cuboid_->half_size, transform);
 }
 
 void CuboidView::RayEnter() {}
@@ -97,21 +97,67 @@ void CuboidView::RayButton(
   (void)pressed;
 }
 
+void CuboidView::DataDeviceEnter(
+    uint32_t serial, std::weak_ptr<zukou::DataOffer> data_offer) {
+  data_offer_ = data_offer;
+  data_device_enter_serial_ = serial;
+}
+
+void CuboidView::DataDeviceLeave() { data_offer_.reset(); }
+
+void CuboidView::DataDeviceMotion([[maybe_unused]] uint32_t time,
+    [[maybe_unused]] glm::vec3 origin, [[maybe_unused]] glm::vec3 direction) {
+  if (auto data_offer = data_offer_.lock()) {
+    for (auto mime_type : data_offer->mime_types()) {
+      if (mime_type == "text/plain") {
+        data_offer->Accept(data_device_enter_serial_, mime_type);
+        break;
+      }
+    }
+  }
+}
+
+void CuboidView::DataDeviceDrop() {
+  if (auto data_offer = data_offer_.lock()) {
+    for (auto mime_type : data_offer->mime_types()) {
+      if (mime_type == "text/plain") {
+        data_offer->Receive(mime_type,
+            std::bind(&CuboidView::TextDropped, this, std::placeholders::_1));
+        break;
+      }
+    }
+  }
+}
+
+void CuboidView::TextDropped(int fd) {
+  char buf[100];
+  std::string str;
+  while (true) {
+    int size = read(fd, buf, 100);
+    if (size <= 0) break;
+    std::string fragment(buf, size);
+    str += fragment;
+  }
+
+  (void)str;
+}
+
 void CuboidView::SetGeometry(
     glm::vec3 parent_position, glm::quat parent_quaternion) {
   parent_position_ = parent_position;
   parent_quaternion_ = parent_quaternion;
-  shader_->SetUniformVariable("transform", GetTransformUniformVariable());
+  auto transform = GetTransformMatrix();
+  shader_->SetUniformVariable(
+      "transform", glm::scale(transform, cuboid_->half_size));
   component_->Attach(shader_);
   virtual_object_->ScheduleNextFrame();
 }
 
-glm::mat4 CuboidView::GetTransformUniformVariable() {
+glm::mat4 CuboidView::GetTransformMatrix() {
   glm::mat4 transform(1);
   transform = glm::translate(transform, parent_position_);
   transform = transform * glm::toMat4(parent_quaternion_);
   transform = glm::translate(transform, cuboid_->position);
-  transform = glm::scale(transform, cuboid_->half_size);
   return transform;
 }
 
