@@ -1,8 +1,9 @@
 #ifndef ZIGEN_PLAYGROUND_CUBOID_VIEW_H
 #define ZIGEN_PLAYGROUND_CUBOID_VIEW_H
 
-#include <model.h>
 #include <zigen-playground.h>
+
+#include "model.h"
 
 namespace zigen_playground {
 

@@ -4,6 +4,7 @@ subdir('client')
 
 shader_inputs = {
   'cuboid': ['vert', 'frag'],
+  'sphere': ['vert', 'frag'],
 }
 
 shaders = []
@@ -35,6 +36,7 @@ srcs_zigen_playground = [
   'dnd-message-parser.cc',
   'playground.cc',
   'playground-view.cc',
+  'sphere-view.cc',
   zigen_client_protocol_h,
   zigen_shell_client_protocol_h,
   zigen_opengl_client_protocol_h,

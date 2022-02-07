@@ -22,6 +22,15 @@ struct Cuboid : public Resource {
   glm::vec3 half_size;
 };
 
+struct Sphere : public Resource {
+  Sphere(glm::vec3 position, float r, uint32_t resolution)
+      : Resource("sphere"), position(position), r(r), resolution(resolution) {}
+
+  glm::vec3 position;
+  float r;
+  uint32_t resolution;
+};
+
 }  // namespace model
 }  // namespace zigen_playground
 
