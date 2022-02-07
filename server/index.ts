@@ -7,6 +7,7 @@ import { Vector3 } from './math/vector'
 import { WebSocketClient } from './model/client'
 import Playground from './model/playground'
 import Cuboid from './model/resource/cuboid'
+import Sphere from './model/resource/sphere'
 import Router from './router'
 
 const app = express()
@@ -24,12 +25,12 @@ if (process.env.NODE_ENV === 'development') {
   app.use(express.static('public'))
 }
 
-const loggeer = log4js.getLogger('main')
+const logger = log4js.getLogger('main')
 
 wss.on('connection', (ws, req) => {
   const client = WebSocketClient.create(ws, req)
   if (client == null) return ws.close(4401, 'Unauthorized')
-  loggeer.info(`connected from ${client.user.id}`)
+  logger.info(`connected from ${client.user.id}`)
   router.add(client)
 })
 
@@ -66,8 +67,6 @@ playground.resources.push(
   new Cuboid(new Vector3(0, 0, 0), new Vector3(0.05, 0.05, 0.05))
 )
 
-playground.resources.push(
-  new Cuboid(new Vector3(-0.1, 0.06, 0.12), new Vector3(0.09, 0.11, 0.02))
-)
+playground.resources.push(new Sphere(new Vector3(-0.1, 0.06, 0.12), 0.05, 10))
 
 server.listen(PORT, () => console.log(`[*] Server listening on port ${PORT}`))

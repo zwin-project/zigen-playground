@@ -131,12 +131,15 @@ void PlaygroundView::SetGeometry(
 
   for (auto cuboid_view : cuboid_views_)
     cuboid_view->SetGeometry(position, quaternion);
+  for (auto sphere_view : sphere_views_)
+    sphere_view->SetGeometry(position, quaternion);
 }
 
 void PlaygroundView::Sync(
     std::vector<std::shared_ptr<model::Resource>> resources) {
   object_group_ = std::make_shared<zukou::objects::ObjectGroup>();
   cuboid_views_.clear();
+  sphere_views_.clear();
   for (auto resource : resources) {
     if (resource->type == "cuboid") {
       auto cuboid = std::dynamic_pointer_cast<model::Cuboid>(resource);
@@ -144,6 +147,12 @@ void PlaygroundView::Sync(
           std::make_shared<CuboidView>(app_, virtual_object_, cuboid);
       cuboid_views_.push_back(cuboid_view);
       object_group_->AddObject(cuboid_view);
+    } else if (resource->type == "sphere") {
+      auto sphere = std::dynamic_pointer_cast<model::Sphere>(resource);
+      auto sphere_view =
+          std::make_shared<SphereView>(app_, virtual_object_, sphere);
+      sphere_views_.push_back(sphere_view);
+      object_group_->AddObject(sphere_view);
     }
   }
   object_group_->Init();
@@ -151,6 +160,11 @@ void PlaygroundView::Sync(
   for (auto cuboid_view : cuboid_views_) {
     cuboid_view->Init();
     cuboid_view->SetGeometry(position_, quaternion_);
+  }
+
+  for (auto sphere_view : sphere_views_) {
+    sphere_view->Init();
+    sphere_view->SetGeometry(position_, quaternion_);
   }
 
   virtual_object_->ScheduleNextFrame();

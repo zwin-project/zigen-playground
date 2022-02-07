@@ -1,20 +1,17 @@
-#ifndef ZIGEN_PLAYGROUND_PLAYGROUND_VIEW_H
-#define ZIGEN_PLAYGROUND_PLAYGROUND_VIEW_H
+#ifndef ZIGEN_PLAYGROUND_SPHERE_VIEW_H
+#define ZIGEN_PLAYGROUND_SPHERE_VIEW_H
 
-#include <zigen-playground.h>
+#include <zukou/zukou.h>
 
-#include <functional>
-#include <memory>
-
-#include "cuboid-view.h"
-#include "sphere-view.h"
+#include "model.h"
 
 namespace zigen_playground {
 
-class PlaygroundView : public zukou::objects::IObject {
+class SphereView : public zukou::objects::IObject {
  public:
-  PlaygroundView(std::shared_ptr<zukou::Application> app,
-      std::shared_ptr<zukou::VirtualObject> virtual_object);
+  SphereView(std::shared_ptr<zukou::Application> app,
+      std::shared_ptr<zukou::VirtualObject> virtual_object,
+      std::shared_ptr<model::Sphere> sphere);
 
   virtual bool Init() override final;
   virtual bool Draw() override final;
@@ -36,31 +33,33 @@ class PlaygroundView : public zukou::objects::IObject {
 
   void TextDropped(int fd);
 
-  void SetGeometry(
-      glm::vec3 half_size, glm::vec3 position, glm::quat quaternion);
+  void SetGeometry(glm::vec3 parent_position, glm::quat parent_quaternion);
 
-  void Sync(std::vector<std::shared_ptr<model::Resource>> resources);
+  glm::mat4 GetTransformMatrix();
 
-  // callbacks
-  std::function<void(std::string resource_type, glm::vec3 position)>
-      dnd_new_resource_callback;
+ private:
+  std::shared_ptr<zukou::OpenGLVertexBuffer> CreateVertexBuffer(
+      uint32_t resolution);
+
+  std::shared_ptr<zukou::OpenGLElementArrayBuffer>
+  CreateFrameElementArrayBuffer(uint32_t resolution, uint32_t *count);
 
  private:
   std::shared_ptr<zukou::Application> app_;
   std::shared_ptr<zukou::VirtualObject> virtual_object_;
-  std::shared_ptr<zukou::objects::ObjectGroup> object_group_;
-  std::vector<std::shared_ptr<CuboidView>> cuboid_views_;
-  std::vector<std::shared_ptr<SphereView>> sphere_views_;
-  glm::vec3 half_size_;
-  glm::vec3 position_;
-  glm::quat quaternion_;
+  std::shared_ptr<model::Sphere> sphere_;
+  glm::vec3 parent_position_;
+  glm::quat parent_quaternion_;
 
-  glm::vec3 last_data_device_origin_;
-  glm::vec3 last_data_device_direction_;
+  std::shared_ptr<zukou::OpenGLComponent> component_;
+  std::shared_ptr<zukou::OpenGLShaderProgram> shader_;
+  std::shared_ptr<zukou::OpenGLVertexBuffer> vertex_buffer_;
+  std::shared_ptr<zukou::OpenGLElementArrayBuffer> element_array_buffer_;
+
   std::weak_ptr<zukou::DataOffer> data_offer_;
   uint32_t data_device_enter_serial_;
 };
 
 }  // namespace zigen_playground
 
-#endif  //  ZIGEN_PLAYGROUND_PLAYGROUND_VIEW_H
+#endif  //  ZIGEN_PLAYGROUND_SPHERE_VIEW_H
