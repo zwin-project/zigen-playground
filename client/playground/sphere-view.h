@@ -42,7 +42,13 @@ class SphereView : public zukou::objects::IObject {
       uint32_t resolution);
 
   std::shared_ptr<zukou::OpenGLElementArrayBuffer>
-  CreateFrameElementArrayBuffer(uint32_t resolution, uint32_t *count);
+  CreateFrameElementArrayBuffer(uint32_t resolution, uint32_t* count);
+
+  std::shared_ptr<zukou::OpenGLElementArrayBuffer>
+  CreateTextureElementArrayBuffer(uint32_t resolution, uint32_t* count);
+
+  void OnTextureLoaded(uint32_t width, uint32_t height, uint32_t pixel_size,
+      std::function<void(void* data)> writer);
 
  private:
   std::shared_ptr<zukou::Application> app_;
@@ -55,6 +61,7 @@ class SphereView : public zukou::objects::IObject {
   std::shared_ptr<zukou::OpenGLShaderProgram> shader_;
   std::shared_ptr<zukou::OpenGLVertexBuffer> vertex_buffer_;
   std::shared_ptr<zukou::OpenGLElementArrayBuffer> element_array_buffer_;
+  std::shared_ptr<zukou::OpenGLTexture> texture_;
 
   std::weak_ptr<zukou::DataOffer> data_offer_;
   uint32_t data_device_enter_serial_;

@@ -69,8 +69,10 @@ std::vector<std::shared_ptr<model::Resource>> SyncEvent::GetResources() {
       glm::vec3 position = ToVec3(resource, "position");
       float r = resource.get<float>("r");
       uint32_t resolution = resource.get<uint32_t>("resolution");
+      std::string texture = resource.get<std::string>("texture");
 
-      auto sphere = std::make_shared<model::Sphere>(position, r, resolution);
+      auto sphere =
+          std::make_shared<model::Sphere>(position, r, resolution, texture);
 
       resources.push_back(sphere);
     }

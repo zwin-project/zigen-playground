@@ -23,12 +23,17 @@ struct Cuboid : public Resource {
 };
 
 struct Sphere : public Resource {
-  Sphere(glm::vec3 position, float r, uint32_t resolution)
-      : Resource("sphere"), position(position), r(r), resolution(resolution) {}
+  Sphere(glm::vec3 position, float r, uint32_t resolution, std::string texture)
+      : Resource("sphere"),
+        position(position),
+        r(r),
+        resolution(resolution),
+        texture(texture) {}
 
   glm::vec3 position;
   float r;
   uint32_t resolution;
+  std::string texture;
 };
 
 }  // namespace model
