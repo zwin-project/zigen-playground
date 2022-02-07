@@ -5,6 +5,7 @@ subdir('client')
 shader_inputs = {
   'cuboid': ['vert', 'frag'],
   'sphere': ['vert', 'frag'],
+  'sphere-textured': ['frag']
 }
 
 shaders = []
@@ -12,7 +13,7 @@ foreach name, types : shader_inputs
   foreach type : types
     input_file = '@0@.@1@'.format(name, type)
     output_file = '@0@-@1@.h'.format(name, type)
-    c_var_name = '@0@_@1@_shader'.format(name, type)
+    c_var_name = '@0@_@1@_shader'.format(name.underscorify(), type)
 
     target = custom_target(
       output_file,
@@ -26,7 +27,10 @@ foreach name, types : shader_inputs
 endforeach
 
 deps_zigen_playground = [
+  dep_curl,
   dep_glm,
+  dep_jpeg,
+  dep_png,
   dep_zukou,
   dep_zigen_playground_client,
 ]
@@ -36,6 +40,7 @@ srcs_zigen_playground = [
   'dnd-message-parser.cc',
   'playground.cc',
   'playground-view.cc',
+  'image-downloader.cc',
   'sphere-view.cc',
   zigen_client_protocol_h,
   zigen_shell_client_protocol_h,

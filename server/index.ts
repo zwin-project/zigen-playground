@@ -67,6 +67,22 @@ playground.resources.push(
   new Cuboid(new Vector3(0, 0, 0), new Vector3(0.05, 0.05, 0.05))
 )
 
-playground.resources.push(new Sphere(new Vector3(-0.1, 0.06, 0.12), 0.05, 10))
+playground.resources.push(
+  new Sphere(
+    new Vector3(-0.1, 0.06, 0.12),
+    0.05,
+    10,
+    'https://www.solarsystemscope.com/textures/download/8k_moon.jpg'
+  )
+)
+
+playground.resources.push(
+  new Sphere(
+    new Vector3(0.25, 0.06, 0.12),
+    0.1,
+    10,
+    'https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200412.3x5400x2700.jpg'
+  )
+)
 
 server.listen(PORT, () => console.log(`[*] Server listening on port ${PORT}`))

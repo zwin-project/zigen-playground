@@ -5,7 +5,8 @@ class Sphere implements Resource {
   constructor(
     private position: Vector3,
     private r: number,
-    private resolution: number
+    private resolution: number,
+    private texture?: string
   ) {}
 
   serialize = (): object => ({
@@ -13,6 +14,7 @@ class Sphere implements Resource {
     position: this.position.toArray(),
     r: this.r,
     resolution: this.resolution,
+    texture: this.texture || '',
   })
 }
 
