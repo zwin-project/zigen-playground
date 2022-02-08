@@ -1,66 +1,44 @@
-import React from 'react'
-import Paper from '@mui/material/Paper'
-import Grid from '@mui/material/Grid'
+import React, { useState } from 'react'
 import Container from '@mui/material/Container'
 import CssBaseline from '@mui/material/CssBaseline'
 import { styled } from '@mui/material/styles'
+import Header from './component/Header'
+import DataTypeSelector, { DataType } from './component/DataTypeSelector'
+import Primitives from './component/Primitives'
+import Textures from './component/Textures'
+import Fade from '@mui/material/Fade'
+import Box from '@mui/material/Box'
 
 const StyledContainer = styled(Container)(({ theme }) => ({
   marginTop: theme.spacing(4),
 }))
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  ...theme.typography.h4,
-  padding: theme.spacing(1),
-  height: 200,
-  lineHeight: '200px',
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}))
-
-type DraggablePaperProps = {
-  data: string
-}
-
-const DraggablePaper: React.FC<DraggablePaperProps> = ({ data, children }) => {
-  const onDragStart: React.DragEventHandler<HTMLDivElement> = (ev) => {
-    ev.dataTransfer.setData('text/plain', data)
-  }
-  return (
-    <StyledPaper draggable onDragStart={onDragStart}>
-      {children}
-    </StyledPaper>
-  )
-}
-
 const App: React.FC = () => {
+  const [dataType, setDataType] = useState<DataType>(DataType.primitives)
+
   return (
     <React.Fragment>
       <CssBaseline />
+      <Header />
       <StyledContainer maxWidth="md">
-        <Grid container spacing={2}>
-          <Grid item xs={4}>
-            <DraggablePaper
-              data={JSON.stringify({
-                action: 'new-resource',
-                data: { type: 'cuboid' },
-              })}
-            >
-              Cuboid
-            </DraggablePaper>
-          </Grid>
-          <Grid item xs={4}>
-            <DraggablePaper
-              data={JSON.stringify({
-                action: 'new-resource',
-                data: { type: 'sphere' },
-              })}
-            >
-              Sphere
-            </DraggablePaper>
-          </Grid>
-        </Grid>
+        <DataTypeSelector
+          marginBottom={8}
+          onChangeDataType={setDataType}
+          value={dataType}
+        />
       </StyledContainer>
+      <Box sx={{ position: 'absolute', width: '100%' }}>
+        <StyledContainer maxWidth="md">
+          <Fade in={dataType === DataType.primitives}>
+            <Primitives />
+          </Fade>
+        </StyledContainer>
+      </Box>
+      <Box sx={{ position: 'absolute', width: '100%' }}>
+        <Fade in={dataType === DataType.textures}>
+          <Textures />
+        </Fade>
+      </Box>
     </React.Fragment>
   )
 }
