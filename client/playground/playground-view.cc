@@ -10,10 +10,13 @@
 namespace zigen_playground {
 
 PlaygroundView::PlaygroundView(std::shared_ptr<zukou::Application> app,
-    std::shared_ptr<zukou::VirtualObject> virtual_object)
+    std::shared_ptr<zukou::VirtualObject> virtual_object,
+    std::string remote_host, std::string remote_port)
     : app_(app),
       virtual_object_(virtual_object),
-      object_group_(std::make_shared<zukou::objects::ObjectGroup>()) {}
+      object_group_(std::make_shared<zukou::objects::ObjectGroup>()),
+      remote_host_(remote_host),
+      remote_port_(remote_port) {}
 
 bool PlaygroundView::Init() { return object_group_->Init(); }
 
@@ -149,8 +152,8 @@ void PlaygroundView::Sync(
       object_group_->AddObject(cuboid_view);
     } else if (resource->type == "sphere") {
       auto sphere = std::dynamic_pointer_cast<model::Sphere>(resource);
-      auto sphere_view =
-          std::make_shared<SphereView>(app_, virtual_object_, sphere);
+      auto sphere_view = std::make_shared<SphereView>(app_, virtual_object_,
+          sphere, remote_host_, remote_port_, dnd_new_texture_callback);
       sphere_views_.push_back(sphere_view);
       object_group_->AddObject(sphere_view);
     }
@@ -181,8 +184,8 @@ void PlaygroundView::AddResource(std::shared_ptr<model::Resource> resource) {
     cuboid_view->SetGeometry(position_, quaternion_);
   } else if (resource->type == "sphere") {
     auto sphere = std::dynamic_pointer_cast<model::Sphere>(resource);
-    auto sphere_view =
-        std::make_shared<SphereView>(app_, virtual_object_, sphere);
+    auto sphere_view = std::make_shared<SphereView>(app_, virtual_object_,
+        sphere, remote_host_, remote_port_, dnd_new_texture_callback);
     sphere_views_.push_back(sphere_view);
     object_group_->AddObject(sphere_view);
     sphere_view->Init();
@@ -191,4 +194,13 @@ void PlaygroundView::AddResource(std::shared_ptr<model::Resource> resource) {
 
   virtual_object_->ScheduleNextFrame();
 }
+
+void PlaygroundView::UpdateTexture(
+    uint64_t resource_id, std::string texture_url) {
+  for (auto sphere_view : sphere_views_) {
+    if (sphere_view->GetId() == resource_id)
+      sphere_view->SetTexture(texture_url);
+  }
+}
+
 }  // namespace zigen_playground

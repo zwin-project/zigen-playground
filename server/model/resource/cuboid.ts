@@ -1,14 +1,21 @@
 import { Vector3 } from '../../math/vector'
-import Resource from '../resource'
+import Resource, { ResourceIdGenerator } from '../resource'
 
 class Cuboid implements Resource {
-  constructor(private position: Vector3, private halfSize: Vector3) {}
+  private _id: number
 
-  serialize = (): object => ({
+  constructor(private position: Vector3, private halfSize: Vector3) {
+    this._id = ResourceIdGenerator.get()
+  }
+
+  serialize = () => ({
     type: 'cuboid',
+    id: this._id,
     position: this.position.toArray(),
     half_size: this.halfSize.toArray(),
   })
+
+  id = () => this._id
 }
 
 export default Cuboid

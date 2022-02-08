@@ -11,6 +11,8 @@ srcs_zigen_playground_client = [
   'message/error.cc',
   'message/new-resource-event.cc',
   'message/new-resource-request.cc',
+  'message/new-texture-event.cc',
+  'message/new-texture-request.cc',
   'message/noop-event.cc',
   'message/sync-event.cc',
   'message/sync-request.cc',

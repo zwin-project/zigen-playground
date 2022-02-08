@@ -20,6 +20,15 @@ static std::shared_ptr<IDndMessage> ParseNewResource(
   return std::make_shared<DndNewResourceMessage>(*resource_type);
 }
 
+static std::shared_ptr<IDndMessage> ParseNewTexture(
+    boost::property_tree::ptree property_tree) {
+  auto url = property_tree.get_optional<std::string>("data.url");
+
+  if (!url) return ParseError(property_tree);
+
+  return std::make_shared<DndNewTextureMessage>(*url);
+}
+
 std::shared_ptr<IDndMessage> DndMessageParser::Parse(std::string text) {
   std::stringstream ss;
   ss << text;
@@ -30,6 +39,8 @@ std::shared_ptr<IDndMessage> DndMessageParser::Parse(std::string text) {
   if (!action) return ParseError(property_tree);
 
   if (*action == "new-resource") return ParseNewResource(property_tree);
+
+  if (*action == "new-texture") return ParseNewTexture(property_tree);
 
   return ParseError(property_tree);
 }

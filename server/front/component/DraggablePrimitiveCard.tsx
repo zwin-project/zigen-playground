@@ -61,12 +61,12 @@ const DraggablePrimitiveCard: React.FC<Props> = ({ type }) => {
       </CardContent>
       <CardMedia
         component="img"
-        height="140"
+        height="180px"
         image={img}
         draggable="false"
         sx={{
           objectFit: 'contain',
-          paddingY: '10px',
+          paddingY: '20px',
           userSelect: 'none',
         }}
       />

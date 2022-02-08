@@ -1,43 +1,40 @@
 import React, { useState } from 'react'
-import Container from '@mui/material/Container'
 import CssBaseline from '@mui/material/CssBaseline'
-import { styled } from '@mui/material/styles'
 import Header from './component/Header'
+import Container from '@mui/material/Container'
 import DataTypeSelector, { DataType } from './component/DataTypeSelector'
 import Primitives from './component/Primitives'
 import Textures from './component/Textures'
 import Fade from '@mui/material/Fade'
 import Box from '@mui/material/Box'
 
-const StyledContainer = styled(Container)(({ theme }) => ({
-  marginTop: theme.spacing(4),
-}))
-
 const App: React.FC = () => {
-  const [dataType, setDataType] = useState<DataType>(DataType.primitives)
+  const [dataType, setDataType] = useState<DataType>(DataType.textures)
 
   return (
     <React.Fragment>
       <CssBaseline />
       <Header />
-      <StyledContainer maxWidth="md">
+      <Container maxWidth="lg" sx={{ marginTop: '40px' }}>
         <DataTypeSelector
           marginBottom={8}
           onChangeDataType={setDataType}
           value={dataType}
         />
-      </StyledContainer>
+      </Container>
       <Box sx={{ position: 'absolute', width: '100%' }}>
-        <StyledContainer maxWidth="md">
-          <Fade in={dataType === DataType.primitives}>
+        <Container maxWidth="lg">
+          <Fade in={dataType === DataType.primitives} unmountOnExit>
             <Primitives />
           </Fade>
-        </StyledContainer>
+        </Container>
       </Box>
       <Box sx={{ position: 'absolute', width: '100%' }}>
-        <Fade in={dataType === DataType.textures}>
-          <Textures />
-        </Fade>
+        <Container maxWidth="lg">
+          <Fade in={dataType === DataType.textures} unmountOnExit>
+            <Textures />
+          </Fade>
+        </Container>
       </Box>
     </React.Fragment>
   )

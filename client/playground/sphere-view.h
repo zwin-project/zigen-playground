@@ -11,7 +11,10 @@ class SphereView : public zukou::objects::IObject {
  public:
   SphereView(std::shared_ptr<zukou::Application> app,
       std::shared_ptr<zukou::VirtualObject> virtual_object,
-      std::shared_ptr<model::Sphere> sphere);
+      std::shared_ptr<model::Sphere> sphere, std::string remote_host,
+      std::string remote_port,
+      std::function<void(uint64_t sphere_id, std::string url)>
+          dnd_new_texture_callback);
 
   virtual bool Init() override final;
   virtual bool Draw() override final;
@@ -34,8 +37,11 @@ class SphereView : public zukou::objects::IObject {
   void TextDropped(int fd);
 
   void SetGeometry(glm::vec3 parent_position, glm::quat parent_quaternion);
+  void SetTexture(std::string texture_url);
 
   glm::mat4 GetTransformMatrix();
+
+  uint64_t GetId();
 
  private:
   std::shared_ptr<zukou::OpenGLVertexBuffer> CreateVertexBuffer(
@@ -65,6 +71,12 @@ class SphereView : public zukou::objects::IObject {
 
   std::weak_ptr<zukou::DataOffer> data_offer_;
   uint32_t data_device_enter_serial_;
+
+  std::string remote_host_;
+  std::string remote_port_;
+
+  std::function<void(uint64_t sphere_id, std::string url)>
+      dnd_new_texture_callback_;
 };
 
 }  // namespace zigen_playground

@@ -13,6 +13,8 @@
 #include "message/error.h"
 #include "message/new-resource-event.h"
 #include "message/new-resource-request.h"
+#include "message/new-texture-event.h"
+#include "message/new-texture-request.h"
 #include "message/noop-event.h"
 #include "message/sync-event.h"
 #include "message/sync-request.h"
@@ -92,6 +94,11 @@ void Client::Impl::NewResourceRequest(
   NotifyRequest(request);
 }
 
+void Client::Impl::NewTextureRequest(uint64_t resource_id, std::string url) {
+  auto request = std::make_shared<message::NewTextureRequest>(resource_id, url);
+  NotifyRequest(request);
+}
+
 void Client::Impl::OnEvent() {
   char buffer[1000];
   int ret = read(event_pipe_[0], buffer, sizeof(buffer));
@@ -141,6 +148,12 @@ void Client::Impl::OnEvent() {
         new_resource_event.Load(data);
         auto resource = new_resource_event.GetResource();
         if (resource) new_resource_event_signal(resource);
+      } else if (handling_event_ == message::Action::kNewTextureEvent) {
+        auto new_texture_event = message::NewTextureEvent();
+        new_texture_event.Load(data);
+        uint64_t resource_id = new_texture_event.GetResourceId();
+        std::string texture_url = new_texture_event.GetTextureUrl();
+        new_texture_event_signal(resource_id, texture_url);
       }
 
       free(data);
@@ -234,6 +247,11 @@ void Client::Impl::Run() {
               auto new_resource_request = message::NewResourceRequest();
               new_resource_request.Load(data);
               messaging->Write(new_resource_request.ToJson());
+            } else if (handling_request ==
+                       message::Action::kNewTextureRequest) {
+              auto new_texture_request = message::NewTextureRequest();
+              new_texture_request.Load(data);
+              messaging->Write(new_texture_request.ToJson());
             }
 
             free(data);

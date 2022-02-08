@@ -15,25 +15,29 @@ struct Resource {
 };
 
 struct Cuboid : public Resource {
-  Cuboid(glm::vec3 position, glm::vec3 half_size)
-      : Resource("cuboid"), position(position), half_size(half_size){};
+  Cuboid(uint64_t id, glm::vec3 position, glm::vec3 half_size)
+      : Resource("cuboid"), id(id), position(position), half_size(half_size){};
 
+  uint64_t id;
   glm::vec3 position;
   glm::vec3 half_size;
 };
 
 struct Sphere : public Resource {
-  Sphere(glm::vec3 position, float r, uint32_t resolution, std::string texture)
+  Sphere(uint64_t id, glm::vec3 position, float r, uint32_t resolution,
+      std::string texture_url)
       : Resource("sphere"),
+        id(id),
         position(position),
         r(r),
         resolution(resolution),
-        texture(texture) {}
+        texture_url(texture_url) {}
 
+  uint64_t id;
   glm::vec3 position;
   float r;
   uint32_t resolution;
-  std::string texture;
+  std::string texture_url;
 };
 
 }  // namespace model
