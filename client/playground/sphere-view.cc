@@ -3,9 +3,11 @@
 #include <zigen-opengl-client-protocol.h>
 
 #include <functional>
+#include <glm/gtx/intersect.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <iostream>
 
+#include "dnd-message-parser.h"
 #include "image-downloader.h"
 #include "sphere-frag.h"
 #include "sphere-textured-frag.h"
@@ -21,8 +23,16 @@ namespace zigen_playground {
 
 SphereView::SphereView(std::shared_ptr<zukou::Application> app,
     std::shared_ptr<zukou::VirtualObject> virtual_object,
-    std::shared_ptr<model::Sphere> sphere)
-    : app_(app), virtual_object_(virtual_object), sphere_(sphere) {}
+    std::shared_ptr<model::Sphere> sphere, std::string remote_host,
+    std::string remote_port,
+    std::function<void(uint64_t sphere_id, std::string url)>
+        dnd_new_texture_callback)
+    : app_(app),
+      virtual_object_(virtual_object),
+      sphere_(sphere),
+      remote_host_(remote_host),
+      remote_port_(remote_port),
+      dnd_new_texture_callback_(dnd_new_texture_callback) {}
 
 bool SphereView::Init() {
   component_.reset(new zukou::OpenGLComponent(app_, virtual_object_));
@@ -54,11 +64,15 @@ bool SphereView::Init() {
   component_->AddVertexAttribute(2, 2, ZGN_OPENGL_VERTEX_ATTRIBUTE_TYPE_FLOAT,
       false, sizeof(Vertex), offsetof(Vertex, uv));
 
-  if (sphere_->texture != "")
+  if (sphere_->texture_url != "") {
+    auto texture_url = sphere_->texture_url;
+    if (texture_url[0] == '/')
+      texture_url = "http://" + remote_host_ + ":" + remote_port_ + texture_url;
     app_->AddPollEvent(std::make_shared<ImageDownloader>(
-        sphere_->texture, std::bind(&SphereView::OnTextureLoaded, this,
-                              std::placeholders::_1, std::placeholders::_2,
-                              std::placeholders::_3, std::placeholders::_4)));
+        texture_url, std::bind(&SphereView::OnTextureLoaded, this,
+                         std::placeholders::_1, std::placeholders::_2,
+                         std::placeholders::_3, std::placeholders::_4)));
+  }
 
   return true;
 }
@@ -68,7 +82,14 @@ bool SphereView::Draw() { return true; }
 float SphereView::Intersect(glm::vec3 origin, glm::vec3 direction) {
   (void)origin;
   (void)direction;
-  return -1;
+
+  glm::vec3 position, norm;
+
+  if (glm::intersectRaySphere(origin, direction, sphere_->position, sphere_->r,
+          position, norm) == false)
+    return -1;
+
+  return glm::length(position - origin);
 }
 
 void SphereView::RayEnter() {}
@@ -125,6 +146,8 @@ void SphereView::DataDeviceDrop() {
 void SphereView::TextDropped(int fd) {
   char buf[100];
   std::string str;
+  DndMessageParser parser;
+
   while (true) {
     int size = read(fd, buf, 100);
     if (size <= 0) break;
@@ -132,7 +155,13 @@ void SphereView::TextDropped(int fd) {
     str += fragment;
   }
 
-  (void)str;
+  auto message = parser.Parse(str);
+
+  if (message->type() == DndMessageType::kNewTexture) {
+    auto new_texture_message =
+        std::dynamic_pointer_cast<DndNewTextureMessage>(message);
+    dnd_new_texture_callback_(sphere_->id, new_texture_message->url());
+  }
 }
 
 void SphereView::SetGeometry(
@@ -146,6 +175,18 @@ void SphereView::SetGeometry(
   virtual_object_->ScheduleNextFrame();
 }
 
+void SphereView::SetTexture(std::string texture_url) {
+  sphere_->texture_url = texture_url;
+  if (sphere_->texture_url != "") {
+    if (texture_url[0] == '/')
+      texture_url = "http://" + remote_host_ + ":" + remote_port_ + texture_url;
+    app_->AddPollEvent(std::make_shared<ImageDownloader>(
+        texture_url, std::bind(&SphereView::OnTextureLoaded, this,
+                         std::placeholders::_1, std::placeholders::_2,
+                         std::placeholders::_3, std::placeholders::_4)));
+  }
+}
+
 glm::mat4 SphereView::GetTransformMatrix() {
   glm::mat4 transform(1);
   transform = glm::translate(transform, parent_position_);
@@ -153,6 +194,8 @@ glm::mat4 SphereView::GetTransformMatrix() {
   transform = glm::translate(transform, sphere_->position);
   return transform;
 }
+
+uint64_t SphereView::GetId() { return sphere_->id; }
 
 void SphereView::OnTextureLoaded(uint32_t width, uint32_t height,
     [[maybe_unused]] uint32_t pixel_size,

@@ -8,6 +8,7 @@ namespace zigen_playground {
 enum class DndMessageType {
   kError,
   kNewResource,
+  kNewTexture,
 };
 
 class IDndMessage {
@@ -32,6 +33,18 @@ class DndNewResourceMessage : public IDndMessage {
 
  private:
   std::string resource_type_;
+};
+
+class DndNewTextureMessage : public IDndMessage {
+ public:
+  DndNewTextureMessage(std::string url) : url_(url) {}
+
+  virtual enum DndMessageType type() { return DndMessageType::kNewTexture; }
+
+  std::string url() { return url_; }
+
+ private:
+  std::string url_;
 };
 
 }  // namespace zigen_playground

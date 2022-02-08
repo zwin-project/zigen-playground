@@ -60,9 +60,12 @@ class Playground : public std::enable_shared_from_this<Playground>,
   void NoopEvent();
   void SyncEvent(std::vector<std::shared_ptr<model::Resource>> resources);
   void NewResourceEvent(std::shared_ptr<model::Resource> resource);
+  void NewTextureEvent(uint64_t resource_id, std::string url);
   void ClientErrorEvent(std::string reason);
 
   void DndNewResource(std::string resource_type, glm::vec3 position);
+
+  void DndNewTexture(uint64_t resource_id, std::string url);
 
  private:
   std::shared_ptr<zukou::Application> app_;

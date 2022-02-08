@@ -44,17 +44,20 @@ std::shared_ptr<model::Resource> NewResourceEvent::GetResource() {
   auto type = property_tree.get<std::string>("data.type");
 
   if (type == "cuboid") {
+    uint64_t id = property_tree.get<uint64_t>("data.id");
     glm::vec3 position = ToVec3(property_tree, "data.position");
     glm::vec3 half_size = ToVec3(property_tree, "data.half_size");
 
-    return std::make_shared<model::Cuboid>(position, half_size);
+    return std::make_shared<model::Cuboid>(id, position, half_size);
   } else if (type == "sphere") {
+    uint64_t id = property_tree.get<uint64_t>("data.id");
     glm::vec3 position = ToVec3(property_tree, "data.position");
     float r = property_tree.get<float>("data.r");
     uint32_t resolution = property_tree.get<uint32_t>("data.resolution");
     std::string texture = property_tree.get<std::string>("data.texture");
 
-    return std::make_shared<model::Sphere>(position, r, resolution, texture);
+    return std::make_shared<model::Sphere>(
+        id, position, r, resolution, texture);
   }
 
   return std::shared_ptr<model::Resource>();

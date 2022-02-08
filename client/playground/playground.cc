@@ -32,7 +32,8 @@ void Playground::SetGeometry(
 
 bool Playground::Init() {
   auto self = shared_from_this();
-  view_.reset(new PlaygroundView(app_, virtual_object_));
+  view_.reset(
+      new PlaygroundView(app_, virtual_object_, remote_host_, remote_port_));
   client_ = Client::Create(
       app_, remote_host_, remote_port_, std::string("/ws?id=") + user_id_);
   client_->ConnectNoopEventSignal(std::bind(&Playground::NoopEvent, self));
@@ -40,11 +41,15 @@ bool Playground::Init() {
       std::bind(&Playground::SyncEvent, self, std::placeholders::_1));
   client_->ConnectNewResourceEventSignal(
       std::bind(&Playground::NewResourceEvent, self, std::placeholders::_1));
+  client_->ConnectNewTextureEventSignal(std::bind(&Playground::NewTextureEvent,
+      self, std::placeholders::_1, std::placeholders::_2));
   client_->ConnectErrorSignal(
       std::bind(&Playground::ClientErrorEvent, self, std::placeholders::_1));
 
   view_->dnd_new_resource_callback = std::bind(&Playground::DndNewResource,
       self, std::placeholders::_1, std::placeholders::_2);
+  view_->dnd_new_texture_callback = std::bind(&Playground::DndNewTexture, self,
+      std::placeholders::_1, std::placeholders::_2);
 
   if (client_->Connect() == false) return false;
   client_->SyncRequest();
@@ -98,6 +103,12 @@ void Playground::NewResourceEvent(std::shared_ptr<model::Resource> resource) {
   view_->AddResource(resource);
 }
 
+void Playground::NewTextureEvent(
+    uint64_t resource_id, std::string texture_url) {
+  std::cerr << "[event] new texture" << std::endl;
+  view_->UpdateTexture(resource_id, texture_url);
+}
+
 void Playground::Connect([[maybe_unused]] const error_signal signal,
     const std::function<void(std::string)> &slot) {
   error_callback_ = slot;
@@ -111,6 +122,12 @@ void Playground::DndNewResource(std::string resource_type, glm::vec3 position) {
   std::cerr << "[dnd event] new resource " << resource_type
             << " pos: " << glm::to_string(position) << std::endl;
   client_->NewResourceRequest(resource_type, position);
+}
+
+void Playground::DndNewTexture(uint64_t resource_id, std::string url) {
+  std::cerr << "[dnd event] new texture id: " << resource_id << ", url: " << url
+            << std::endl;
+  client_->NewTextureRequest(resource_id, url);
 }
 
 }  // namespace zigen_playground

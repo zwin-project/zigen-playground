@@ -30,10 +30,12 @@ class Client : public std::enable_shared_from_this<Client> {
           observer);
   void ConnectNewResourceEventSignal(
       std::function<void(std::shared_ptr<model::Resource>)> observer);
+  void ConnectNewTextureEventSignal(std::function<void(uint64_t resource_id, std::string url)> observer);
   void ConnectErrorSignal(std::function<void(std::string)> observer);
 
   void SyncRequest();
   void NewResourceRequest(std::string resource_type, glm::vec3 position);
+  void NewTextureRequest(uint64_t resource_id, std::string url);
 
  private:
   Client(std::shared_ptr<zukou::Application> app, std::string remote_host,

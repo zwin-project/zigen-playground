@@ -12,6 +12,8 @@ enum class Action : uint32_t {
   kUnset,
   kNewResourceEvent,
   kNewResourceRequest,
+  kNewTextureEvent,
+  kNewTextureRequest,
   kNoopEvent,
   kSyncEvent,
   kSyncRequest,

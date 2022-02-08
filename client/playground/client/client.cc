@@ -25,6 +25,10 @@ void Client::NewResourceRequest(std::string resource_type, glm::vec3 position) {
   pimpl_->NewResourceRequest(resource_type, position);
 }
 
+void Client::NewTextureRequest(uint64_t resource_id, std::string url) {
+  pimpl_->NewTextureRequest(resource_id, url);
+}
+
 void Client::ConnectNoopEventSignal(std::function<void()> observer) {
   pimpl_->noop_event_signal.connect(observer);
 }
@@ -33,6 +37,11 @@ void Client::ConnectSyncEventSignal(
     std::function<void(std::vector<std::shared_ptr<model::Resource>>)>
         observer) {
   pimpl_->sync_event_signal.connect(observer);
+}
+
+void Client::ConnectNewTextureEventSignal(
+    std::function<void(uint64_t resource_id, std::string url)> observer) {
+  pimpl_->new_texture_event_signal.connect(observer);
 }
 
 void Client::ConnectNewResourceEventSignal(
