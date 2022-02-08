@@ -38,6 +38,8 @@ bool Playground::Init() {
   client_->ConnectNoopEventSignal(std::bind(&Playground::NoopEvent, self));
   client_->ConnectSyncEventSignal(
       std::bind(&Playground::SyncEvent, self, std::placeholders::_1));
+  client_->ConnectNewResourceEventSignal(
+      std::bind(&Playground::NewResourceEvent, self, std::placeholders::_1));
   client_->ConnectErrorSignal(
       std::bind(&Playground::ClientErrorEvent, self, std::placeholders::_1));
 
@@ -89,6 +91,11 @@ void Playground::SyncEvent(
     std::vector<std::shared_ptr<model::Resource>> resources) {
   std::cerr << "[event] sync" << std::endl;
   view_->Sync(resources);
+}
+
+void Playground::NewResourceEvent(std::shared_ptr<model::Resource> resource) {
+  std::cerr << "[event] new resource" << std::endl;
+  view_->AddResource(resource);
 }
 
 void Playground::Connect([[maybe_unused]] const error_signal signal,

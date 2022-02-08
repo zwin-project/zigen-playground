@@ -159,11 +159,6 @@ void SphereView::OnTextureLoaded(uint32_t width, uint32_t height,
     std::function<void(void *data)> writer) {
   uint32_t element_count;
 
-  (void)width;
-  (void)height;
-  (void)writer;
-  (void)element_count;
-
   // shader
   auto transform = GetTransformMatrix();
   shader_ = zukou::OpenGLShaderProgram::Create(app_);

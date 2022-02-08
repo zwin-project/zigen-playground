@@ -72,7 +72,7 @@ playground.resources.push(
     new Vector3(-0.1, 0.06, 0.12),
     0.05,
     10,
-    'https://www.solarsystemscope.com/textures/download/8k_moon.jpg'
+    'https://www.solarsystemscope.com/textures/download/2k_moon.jpg'
   )
 )
 

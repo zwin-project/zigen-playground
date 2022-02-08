@@ -11,6 +11,7 @@
 #include "message-parser.h"
 #include "message.h"
 #include "message/error.h"
+#include "message/new-resource-event.h"
 #include "message/new-resource-request.h"
 #include "message/noop-event.h"
 #include "message/sync-event.h"
@@ -135,6 +136,11 @@ void Client::Impl::OnEvent() {
         sync.Load(data);
         auto resources = sync.GetResources();
         sync_event_signal(resources);
+      } else if (handling_event_ == message::Action::kNewResourceEvent) {
+        auto new_resource_event = message::NewResourceEvent();
+        new_resource_event.Load(data);
+        auto resource = new_resource_event.GetResource();
+        if (resource) new_resource_event_signal(resource);
       }
 
       free(data);

@@ -6,6 +6,7 @@
 #include <string>
 
 #include "message/error.h"
+#include "message/new-resource-event.h"
 #include "message/noop-event.h"
 #include "message/sync-event.h"
 
@@ -23,6 +24,9 @@ std::shared_ptr<message::IMessage> MessageParser::ParseEvent(std::string json) {
   if (*action == "noop") return std::make_shared<message::NoopEvent>();
 
   if (*action == "sync") return std::make_shared<message::SyncEvent>(json);
+
+  if (*action == "new-resource")
+    return std::make_shared<message::NewResourceEvent>(json);
 
   return std::make_shared<message::Error>("invalid action: " + *action);
 }

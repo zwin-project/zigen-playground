@@ -5,20 +5,10 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+#include "helper.h"
+
 namespace zigen_playground {
 namespace message {
-
-glm::vec3 ToVec3(boost::property_tree::ptree const &pt,
-    boost::property_tree::ptree::key_type const &key) {
-  glm::vec3 v;
-  int i = 0;
-  for (auto &item : pt.get_child(key)) {
-    v[i++] = item.second.get_value<float>();
-    if (i >= 3) break;
-  }
-
-  return v;
-}
 
 SyncEvent::SyncEvent() {}
 

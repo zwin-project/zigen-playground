@@ -170,4 +170,25 @@ void PlaygroundView::Sync(
   virtual_object_->ScheduleNextFrame();
 }
 
+void PlaygroundView::AddResource(std::shared_ptr<model::Resource> resource) {
+  if (resource->type == "cuboid") {
+    auto cuboid = std::dynamic_pointer_cast<model::Cuboid>(resource);
+    auto cuboid_view =
+        std::make_shared<CuboidView>(app_, virtual_object_, cuboid);
+    cuboid_views_.push_back(cuboid_view);
+    object_group_->AddObject(cuboid_view);
+    cuboid_view->Init();
+    cuboid_view->SetGeometry(position_, quaternion_);
+  } else if (resource->type == "sphere") {
+    auto sphere = std::dynamic_pointer_cast<model::Sphere>(resource);
+    auto sphere_view =
+        std::make_shared<SphereView>(app_, virtual_object_, sphere);
+    sphere_views_.push_back(sphere_view);
+    object_group_->AddObject(sphere_view);
+    sphere_view->Init();
+    sphere_view->SetGeometry(position_, quaternion_);
+  }
+
+  virtual_object_->ScheduleNextFrame();
+}
 }  // namespace zigen_playground
