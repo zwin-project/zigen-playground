@@ -9,6 +9,7 @@ srcs_zigen_playground_client = [
   'message-parser.cc',
   'messaging.cc',
   'message/error.cc',
+  'message/new-resource-event.cc',
   'message/new-resource-request.cc',
   'message/noop-event.cc',
   'message/sync-event.cc',

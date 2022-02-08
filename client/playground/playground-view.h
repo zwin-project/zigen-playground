@@ -41,6 +41,8 @@ class PlaygroundView : public zukou::objects::IObject {
 
   void Sync(std::vector<std::shared_ptr<model::Resource>> resources);
 
+  void AddResource(std::shared_ptr<model::Resource> resource);
+
   // callbacks
   std::function<void(std::string resource_type, glm::vec3 position)>
       dnd_new_resource_callback;

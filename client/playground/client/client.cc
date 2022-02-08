@@ -35,6 +35,11 @@ void Client::ConnectSyncEventSignal(
   pimpl_->sync_event_signal.connect(observer);
 }
 
+void Client::ConnectNewResourceEventSignal(
+    std::function<void(std::shared_ptr<model::Resource>)> observer) {
+  pimpl_->new_resource_event_signal.connect(observer);
+}
+
 void Client::ConnectErrorSignal(std::function<void(std::string)> observer) {
   pimpl_->error_signal.connect(observer);
 }

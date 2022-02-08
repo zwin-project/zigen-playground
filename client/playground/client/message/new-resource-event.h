@@ -1,5 +1,5 @@
-#ifndef ZIGEN_PLAYGROUND_MESSAGES_SYNC_EVENT_H
-#define ZIGEN_PLAYGROUND_MESSAGES_SYNC_EVENT_H
+#ifndef ZIGEN_PLAYGROUND_MESSAGES_NEW_RESOURCE_EVENT_H
+#define ZIGEN_PLAYGROUND_MESSAGES_NEW_RESOURCE_EVENT_H
 
 #include <vector>
 
@@ -9,10 +9,10 @@
 namespace zigen_playground {
 namespace message {
 
-class SyncEvent : public IMessage {
+class NewResourceEvent : public IMessage {
  public:
-  SyncEvent();
-  SyncEvent(std::string json);
+  NewResourceEvent();
+  NewResourceEvent(std::string json);
 
   virtual bool WriteTo(int fd) override final;
 
@@ -22,7 +22,7 @@ class SyncEvent : public IMessage {
 
   virtual message::Action GetAction() override final;
 
-  std::vector<std::shared_ptr<model::Resource>> GetResources();
+  std::shared_ptr<model::Resource> GetResource();
 
  private:
   std::string json_;
@@ -31,4 +31,4 @@ class SyncEvent : public IMessage {
 }  // namespace message
 }  // namespace zigen_playground
 
-#endif  //  ZIGEN_PLAYGROUND_MESSAGES_SYNC_EVENT_H
+#endif  //  ZIGEN_PLAYGROUND_MESSAGES_NEW_RESOURCE_EVENT_H

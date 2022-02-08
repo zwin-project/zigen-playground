@@ -28,6 +28,8 @@ class Client : public std::enable_shared_from_this<Client> {
   void ConnectSyncEventSignal(
       std::function<void(std::vector<std::shared_ptr<model::Resource>>)>
           observer);
+  void ConnectNewResourceEventSignal(
+      std::function<void(std::shared_ptr<model::Resource>)> observer);
   void ConnectErrorSignal(std::function<void(std::string)> observer);
 
   void SyncRequest();
