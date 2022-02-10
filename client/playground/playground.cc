@@ -43,6 +43,8 @@ bool Playground::Init() {
       std::bind(&Playground::NewResourceEvent, self, std::placeholders::_1));
   client_->ConnectNewTextureEventSignal(std::bind(&Playground::NewTextureEvent,
       self, std::placeholders::_1, std::placeholders::_2));
+  client_->ConnectUpdateGeomEventSignal(
+      std::bind(&Playground::UpdataGeomEvent, self, std::placeholders::_1));
   client_->ConnectErrorSignal(
       std::bind(&Playground::ClientErrorEvent, self, std::placeholders::_1));
 
@@ -50,6 +52,8 @@ bool Playground::Init() {
       self, std::placeholders::_1, std::placeholders::_2);
   view_->dnd_new_texture_callback = std::bind(&Playground::DndNewTexture, self,
       std::placeholders::_1, std::placeholders::_2);
+  view_->update_sphere_geom_callback =
+      std::bind(&Playground::UpdateSphereGeom, self, std::placeholders::_1);
 
   if (client_->Connect() == false) return false;
   client_->SyncRequest();
@@ -74,6 +78,16 @@ void Playground::RayMotion(
 void Playground::RayButton(
     uint32_t serial, uint32_t time, uint32_t button, bool pressed) {
   view_->RayButton(serial, time, button, pressed);
+}
+
+void Playground::RayAxis(uint32_t time, uint32_t axis, float value) {
+  view_->RayAxis(time, axis, value);
+}
+
+void Playground::RayFrame() { view_->RayFrame(); }
+
+void Playground::RayAxisDiscrete(uint32_t axis, int32_t discrete) {
+  view_->RayAxisDiscrete(axis, discrete);
 }
 
 void Playground::DataDeviceEnter(
@@ -109,6 +123,11 @@ void Playground::NewTextureEvent(
   view_->UpdateTexture(resource_id, texture_url);
 }
 
+void Playground::UpdataGeomEvent(std::shared_ptr<model::Resource> resource) {
+  std::cerr << "[event] update geom" << std::endl;
+  view_->UpdateGeom(resource);
+}
+
 void Playground::Connect([[maybe_unused]] const error_signal signal,
     const std::function<void(std::string)> &slot) {
   error_callback_ = slot;
@@ -128,6 +147,11 @@ void Playground::DndNewTexture(uint64_t resource_id, std::string url) {
   std::cerr << "[dnd event] new texture id: " << resource_id << ", url: " << url
             << std::endl;
   client_->NewTextureRequest(resource_id, url);
+}
+
+void Playground::UpdateSphereGeom(std::shared_ptr<model::Sphere> sphere) {
+  std::cerr << "[action event] update sphere geom" << std::endl;
+  client_->UpdateSphereGeom(sphere);
 }
 
 }  // namespace zigen_playground

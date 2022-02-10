@@ -17,6 +17,8 @@ enum class Action : uint32_t {
   kNoopEvent,
   kSyncEvent,
   kSyncRequest,
+  kUpdateGeomRequest,
+  kUpdateGeomEvent,
   kError,
 };
 

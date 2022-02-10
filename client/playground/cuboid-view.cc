@@ -82,20 +82,20 @@ void CuboidView::RayEnter() {}
 
 void CuboidView::RayLeave() {}
 
-void CuboidView::RayMotion(
-    glm::vec3 origin, glm::vec3 direction, uint32_t time) {
-  (void)origin;
-  (void)direction;
-  (void)time;
-}
+void CuboidView::RayMotion([[maybe_unused]] glm::vec3 origin,
+    [[maybe_unused]] glm::vec3 direction, [[maybe_unused]] uint32_t time) {}
 
-void CuboidView::RayButton(
-    uint32_t serial, uint32_t time, uint32_t button, bool pressed) {
-  (void)serial;
-  (void)time;
-  (void)button;
-  (void)pressed;
-}
+void CuboidView::RayButton([[maybe_unused]] uint32_t serial,
+    [[maybe_unused]] uint32_t time, [[maybe_unused]] uint32_t button,
+    [[maybe_unused]] bool pressed) {}
+
+void CuboidView::RayAxis([[maybe_unused]] uint32_t time,
+    [[maybe_unused]] uint32_t axis, [[maybe_unused]] float value) {}
+
+void CuboidView::RayFrame() {}
+
+void CuboidView::RayAxisDiscrete(
+    [[maybe_unused]] uint32_t axis, [[maybe_unused]] int32_t discrete) {}
 
 void CuboidView::DataDeviceEnter(
     uint32_t serial, std::weak_ptr<zukou::DataOffer> data_offer) {

@@ -22,6 +22,10 @@ class CuboidView : public zukou::objects::IObject {
       glm::vec3 origin, glm::vec3 direction, uint32_t time) override final;
   virtual void RayButton(uint32_t serial, uint32_t time, uint32_t button,
       bool pressed) override final;
+  virtual void RayAxis(
+      uint32_t time, uint32_t axis, float value) override final;
+  virtual void RayFrame() override final;
+  virtual void RayAxisDiscrete(uint32_t axis, int32_t discrete) override final;
 
   virtual void DataDeviceEnter(uint32_t serial,
       std::weak_ptr<zukou::DataOffer> data_offer) override final;

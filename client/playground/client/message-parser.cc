@@ -10,6 +10,7 @@
 #include "message/new-texture-event.h"
 #include "message/noop-event.h"
 #include "message/sync-event.h"
+#include "message/update-geom-event.h"
 
 namespace zigen_playground {
 
@@ -31,6 +32,8 @@ std::shared_ptr<message::IMessage> MessageParser::ParseEvent(std::string json) {
 
   if (*action == "new-texture")
     return std::make_shared<message::NewTextureEvent>(json);
+
+  if (*action == "update-geom") return std::make_shared<message::UpdateGeomEvent>(json);
 
   return std::make_shared<message::Error>("invalid action: " + *action);
 }

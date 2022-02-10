@@ -45,6 +45,16 @@ void PlaygroundView::RayButton(
   object_group_->RayButton(serial, time, button, pressed);
 }
 
+void PlaygroundView::RayAxis(uint32_t time, uint32_t axis, float value) {
+  object_group_->RayAxis(time, axis, value);
+}
+
+void PlaygroundView::RayFrame() { object_group_->RayFrame(); }
+
+void PlaygroundView::RayAxisDiscrete(uint32_t axis, int32_t discrete) {
+  object_group_->RayAxisDiscrete(axis, discrete);
+}
+
 void PlaygroundView::DataDeviceEnter(
     uint32_t serial, std::weak_ptr<zukou::DataOffer> data_offer) {
   if (auto offer = data_offer.lock()) {
@@ -153,7 +163,8 @@ void PlaygroundView::Sync(
     } else if (resource->type == "sphere") {
       auto sphere = std::dynamic_pointer_cast<model::Sphere>(resource);
       auto sphere_view = std::make_shared<SphereView>(app_, virtual_object_,
-          sphere, remote_host_, remote_port_, dnd_new_texture_callback);
+          sphere, remote_host_, remote_port_, dnd_new_texture_callback,
+          update_sphere_geom_callback);
       sphere_views_.push_back(sphere_view);
       object_group_->AddObject(sphere_view);
     }
@@ -185,7 +196,8 @@ void PlaygroundView::AddResource(std::shared_ptr<model::Resource> resource) {
   } else if (resource->type == "sphere") {
     auto sphere = std::dynamic_pointer_cast<model::Sphere>(resource);
     auto sphere_view = std::make_shared<SphereView>(app_, virtual_object_,
-        sphere, remote_host_, remote_port_, dnd_new_texture_callback);
+        sphere, remote_host_, remote_port_, dnd_new_texture_callback,
+        update_sphere_geom_callback);
     sphere_views_.push_back(sphere_view);
     object_group_->AddObject(sphere_view);
     sphere_view->Init();
@@ -200,6 +212,17 @@ void PlaygroundView::UpdateTexture(
   for (auto sphere_view : sphere_views_) {
     if (sphere_view->GetId() == resource_id)
       sphere_view->SetTexture(texture_url);
+  }
+}
+
+void PlaygroundView::UpdateGeom(std::shared_ptr<model::Resource> resource) {
+  if (resource->type == "sphere") {
+    auto sphere = std::dynamic_pointer_cast<model::Sphere>(resource);
+    for (auto sphere_view : sphere_views_) {
+      if (sphere_view->GetId() == sphere->id) {
+        sphere_view->UpdateSphereGeometry(sphere);
+      }
+    }
   }
 }
 

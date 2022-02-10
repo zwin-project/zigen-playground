@@ -14,7 +14,8 @@ class SphereView : public zukou::objects::IObject {
       std::shared_ptr<model::Sphere> sphere, std::string remote_host,
       std::string remote_port,
       std::function<void(uint64_t sphere_id, std::string url)>
-          dnd_new_texture_callback);
+          dnd_new_texture_callback,
+      std::function<void(std::shared_ptr<model::Sphere>)> update_geom_callback);
 
   virtual bool Init() override final;
   virtual bool Draw() override final;
@@ -26,6 +27,10 @@ class SphereView : public zukou::objects::IObject {
       glm::vec3 origin, glm::vec3 direction, uint32_t time) override final;
   virtual void RayButton(uint32_t serial, uint32_t time, uint32_t button,
       bool pressed) override final;
+  virtual void RayAxis(
+      uint32_t time, uint32_t axis, float value) override final;
+  virtual void RayFrame() override final;
+  virtual void RayAxisDiscrete(uint32_t axis, int32_t discrete) override final;
 
   virtual void DataDeviceEnter(uint32_t serial,
       std::weak_ptr<zukou::DataOffer> data_offer) override final;
@@ -38,6 +43,7 @@ class SphereView : public zukou::objects::IObject {
 
   void SetGeometry(glm::vec3 parent_position, glm::quat parent_quaternion);
   void SetTexture(std::string texture_url);
+  void UpdateSphereGeometry(std::shared_ptr<model::Sphere> sphere);
 
   glm::mat4 GetTransformMatrix();
 
@@ -77,6 +83,8 @@ class SphereView : public zukou::objects::IObject {
 
   std::function<void(uint64_t sphere_id, std::string url)>
       dnd_new_texture_callback_;
+
+  std::function<void(std::shared_ptr<model::Sphere>)> update_geom_callback_;
 };
 
 }  // namespace zigen_playground

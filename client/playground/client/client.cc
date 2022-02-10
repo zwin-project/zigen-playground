@@ -29,6 +29,10 @@ void Client::NewTextureRequest(uint64_t resource_id, std::string url) {
   pimpl_->NewTextureRequest(resource_id, url);
 }
 
+void Client::UpdateSphereGeom(std::shared_ptr<model::Sphere> sphere) {
+  pimpl_->UpdateSphereGeom(sphere);
+}
+
 void Client::ConnectNoopEventSignal(std::function<void()> observer) {
   pimpl_->noop_event_signal.connect(observer);
 }
@@ -39,14 +43,19 @@ void Client::ConnectSyncEventSignal(
   pimpl_->sync_event_signal.connect(observer);
 }
 
+void Client::ConnectNewResourceEventSignal(
+    std::function<void(std::shared_ptr<model::Resource>)> observer) {
+  pimpl_->new_resource_event_signal.connect(observer);
+}
+
 void Client::ConnectNewTextureEventSignal(
     std::function<void(uint64_t resource_id, std::string url)> observer) {
   pimpl_->new_texture_event_signal.connect(observer);
 }
 
-void Client::ConnectNewResourceEventSignal(
+void Client::ConnectUpdateGeomEventSignal(
     std::function<void(std::shared_ptr<model::Resource>)> observer) {
-  pimpl_->new_resource_event_signal.connect(observer);
+  pimpl_->update_geom_event_signal.connect(observer);
 }
 
 void Client::ConnectErrorSignal(std::function<void(std::string)> observer) {
