@@ -28,9 +28,6 @@ class Messaging : public std::enable_shared_from_this<Messaging> {
   void OnRead(
       boost::beast::error_code error_code, std::size_t bytes_transferred);
 
-  void OnWrite(
-      boost::beast::error_code error_code, std::size_t bytes_transferred);
-
   void Fail(boost::beast::error_code error_code, std::string error_point);
 
  private:

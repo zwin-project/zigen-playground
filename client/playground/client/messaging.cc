@@ -59,20 +59,13 @@ void Messaging::OnRead(
       beast::bind_front_handler(&Messaging::OnRead, shared_from_this()));
 }
 
-void Messaging::OnWrite(
-    boost::beast::error_code error_code, std::size_t bytes_transferred) {
-  boost::ignore_unused(bytes_transferred);
-  if (error_code) Fail(error_code, "write");
-}
-
 void Messaging::Fail(
     boost::beast::error_code error_code, std::string error_point) {
   OnFail(error_point + ": " + error_code.message());
 }
 
 void Messaging::Write(std::string message) {
-  ws_.async_write(boost::asio::buffer(message, message.size()),
-      beast::bind_front_handler(&Messaging::OnWrite, shared_from_this()));
+  ws_.write(boost::asio::buffer(message, message.size()));
 }
 
 }  // namespace zigen_playground
