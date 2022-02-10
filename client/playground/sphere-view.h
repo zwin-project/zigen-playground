@@ -75,6 +75,12 @@ class SphereView : public zukou::objects::IObject {
   std::shared_ptr<zukou::OpenGLElementArrayBuffer> element_array_buffer_;
   std::shared_ptr<zukou::OpenGLTexture> texture_;
 
+  bool left_click_;
+  glm::vec3 previous_ray_origin_;
+  glm::vec3 previous_ray_direction_;
+  bool previous_ray_is_valid_;
+  float dragging_distance_;
+
   std::weak_ptr<zukou::DataOffer> data_offer_;
   uint32_t data_device_enter_serial_;
 

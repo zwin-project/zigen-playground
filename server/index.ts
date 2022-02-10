@@ -6,7 +6,6 @@ import { WebSocketServer } from 'ws'
 import { Vector3 } from './math/vector'
 import { WebSocketClient } from './model/client'
 import Playground from './model/playground'
-import Cuboid from './model/resource/cuboid'
 import Sphere from './model/resource/sphere'
 import Router from './router'
 
@@ -62,10 +61,6 @@ app.get('/', (req, res) => {
 })
 
 const playground = Playground.get()
-
-playground.resources.push(
-  new Cuboid(new Vector3(0, 0, 0), new Vector3(0.05, 0.05, 0.05))
-)
 
 playground.resources.push(
   new Sphere(new Vector3(-0.1, 0.06, 0.12), 0.05, 10, '/moon.jpg')
