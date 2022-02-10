@@ -1,5 +1,6 @@
 #include "sphere-view.h"
 
+#include <linux/input.h>
 #include <zigen-opengl-client-protocol.h>
 
 #include <functional>
@@ -31,6 +32,7 @@ SphereView::SphereView(std::shared_ptr<zukou::Application> app,
     : app_(app),
       virtual_object_(virtual_object),
       sphere_(sphere),
+      dragging_distance_(0),
       remote_host_(remote_host),
       remote_port_(remote_port),
       dnd_new_texture_callback_(dnd_new_texture_callback),
@@ -94,25 +96,77 @@ float SphereView::Intersect(glm::vec3 origin, glm::vec3 direction) {
   return glm::length(position - origin);
 }
 
-void SphereView::RayEnter() {}
+void SphereView::RayEnter() {
+  previous_ray_is_valid_ = false;
+  dragging_distance_ = 0;
+}
 
-void SphereView::RayLeave() {}
+void SphereView::RayLeave() {
+  left_click_ = false;
+  previous_ray_is_valid_ = false;
+  dragging_distance_ = 0;
+}
 
-void SphereView::RayMotion([[maybe_unused]] glm::vec3 origin,
-    [[maybe_unused]] glm::vec3 direction, [[maybe_unused]] uint32_t time) {}
+void SphereView::RayMotion(
+    glm::vec3 origin, glm::vec3 direction, [[maybe_unused]] uint32_t time) {
+  if (left_click_ && previous_ray_is_valid_ && dragging_distance_ > 0) {
+    glm::vec3 old_tip =
+        previous_ray_origin_ + previous_ray_direction_ * dragging_distance_;
+    glm::vec3 new_tip = origin + direction * dragging_distance_;
+    glm::vec3 delta = new_tip - old_tip;
+    sphere_->position += delta;
+    auto transform = GetTransformMatrix();
+    shader_->SetUniformVariable(
+        "transform", glm::scale(transform, glm::vec3(sphere_->r)));
+    component_->Attach(shader_);
+    virtual_object_->ScheduleNextFrame();
+    update_geom_callback_(sphere_);
+  }
+
+  previous_ray_origin_ = origin;
+  previous_ray_direction_ = direction;
+  previous_ray_is_valid_ = true;
+}
 
 void SphereView::RayButton([[maybe_unused]] uint32_t serial,
-    [[maybe_unused]] uint32_t time, [[maybe_unused]] uint32_t button,
-    [[maybe_unused]] bool pressed) {}
+    [[maybe_unused]] uint32_t time, uint32_t button, bool pressed) {
+  if (button == BTN_LEFT && pressed) {
+    left_click_ = true;
+    if (previous_ray_is_valid_) {
+      dragging_distance_ =
+          this->Intersect(previous_ray_origin_, previous_ray_direction_);
+    }
+  } else if (button == BTN_LEFT && !pressed) {
+    left_click_ = false;
+    dragging_distance_ = 0;
+  }
+}
 
 void SphereView::RayAxis([[maybe_unused]] uint32_t time,
     [[maybe_unused]] uint32_t axis, float value) {
-  auto transform = GetTransformMatrix();
-  sphere_->r *= 1 - value / 100;
-  shader_->SetUniformVariable(
-      "transform", glm::scale(transform, glm::vec3(sphere_->r)));
-  component_->Attach(shader_);
-  virtual_object_->ScheduleNextFrame();
+  if (left_click_) {
+    if (previous_ray_is_valid_ && dragging_distance_ > 0) {
+      glm::vec3 old_tip =
+          previous_ray_origin_ + previous_ray_direction_ * dragging_distance_;
+      dragging_distance_ *= (1 - value / 500);
+      glm::vec3 new_tip =
+          previous_ray_origin_ + previous_ray_direction_ * dragging_distance_;
+      glm::vec3 delta = new_tip - old_tip;
+      sphere_->position += delta;
+      auto transform = GetTransformMatrix();
+      shader_->SetUniformVariable(
+          "transform", glm::scale(transform, glm::vec3(sphere_->r)));
+      component_->Attach(shader_);
+      virtual_object_->ScheduleNextFrame();
+    }
+  } else {
+    auto transform = GetTransformMatrix();
+    sphere_->r *= 1 - value / 100;
+    shader_->SetUniformVariable(
+        "transform", glm::scale(transform, glm::vec3(sphere_->r)));
+    component_->Attach(shader_);
+    virtual_object_->ScheduleNextFrame();
+  }
   update_geom_callback_(sphere_);
 }
 

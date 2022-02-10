@@ -4,7 +4,7 @@ interface Resource {
 }
 
 export class ResourceIdGenerator {
-  static nextId = 0
+  static nextId = 1
   static get = (): number => {
     const id = ResourceIdGenerator.nextId
     ResourceIdGenerator.nextId += 1
