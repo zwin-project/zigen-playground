@@ -18,7 +18,7 @@ export const newResourceController = (
   if (request.type === 'cuboid') {
     resource = new Cuboid(request.position, new Vector3(0.01, 0.01, 0.01))
   } else if (request.type === 'sphere') {
-    resource = new Sphere(request.position, 0.02, 4)
+    resource = new Sphere(request.position, 0.05, 10)
   } else {
     return
   }

@@ -25,6 +25,11 @@ class Sphere implements Resource {
   id = () => this._id
 
   setTexture = (url: string) => (this.texture = url)
+
+  setGeom = (position: Vector3, r: number) => {
+    this.position = position
+    this.r = r
+  }
 }
 
 export default Sphere

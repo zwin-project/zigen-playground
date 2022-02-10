@@ -28,13 +28,17 @@ class Client::Impl : public std::enable_shared_from_this<Impl> {
   void SyncRequest();
   void NewResourceRequest(std::string resource_type, glm::vec3 position);
   void NewTextureRequest(uint64_t resource_id, std::string url);
+  void UpdateSphereGeom(std::shared_ptr<model::Sphere> sphere);
 
   boost::signals2::signal<void()> noop_event_signal;
   boost::signals2::signal<void(std::vector<std::shared_ptr<model::Resource>>)>
       sync_event_signal;
   boost::signals2::signal<void(std::shared_ptr<model::Resource>)>
       new_resource_event_signal;
-  boost::signals2::signal<void(uint64_t resource_id, std::string texture_url)> new_texture_event_signal;
+  boost::signals2::signal<void(uint64_t resource_id, std::string texture_url)>
+      new_texture_event_signal;
+  boost::signals2::signal<void(std::shared_ptr<model::Resource>)>
+      update_geom_event_signal;
   boost::signals2::signal<void(std::string)> error_signal;
 
  private:

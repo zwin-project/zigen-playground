@@ -26,13 +26,15 @@ SphereView::SphereView(std::shared_ptr<zukou::Application> app,
     std::shared_ptr<model::Sphere> sphere, std::string remote_host,
     std::string remote_port,
     std::function<void(uint64_t sphere_id, std::string url)>
-        dnd_new_texture_callback)
+        dnd_new_texture_callback,
+    std::function<void(std::shared_ptr<model::Sphere>)> update_geom_callback)
     : app_(app),
       virtual_object_(virtual_object),
       sphere_(sphere),
       remote_host_(remote_host),
       remote_port_(remote_port),
-      dnd_new_texture_callback_(dnd_new_texture_callback) {}
+      dnd_new_texture_callback_(dnd_new_texture_callback),
+      update_geom_callback_(update_geom_callback) {}
 
 bool SphereView::Init() {
   component_.reset(new zukou::OpenGLComponent(app_, virtual_object_));
@@ -96,20 +98,28 @@ void SphereView::RayEnter() {}
 
 void SphereView::RayLeave() {}
 
-void SphereView::RayMotion(
-    glm::vec3 origin, glm::vec3 direction, uint32_t time) {
-  (void)origin;
-  (void)direction;
-  (void)time;
+void SphereView::RayMotion([[maybe_unused]] glm::vec3 origin,
+    [[maybe_unused]] glm::vec3 direction, [[maybe_unused]] uint32_t time) {}
+
+void SphereView::RayButton([[maybe_unused]] uint32_t serial,
+    [[maybe_unused]] uint32_t time, [[maybe_unused]] uint32_t button,
+    [[maybe_unused]] bool pressed) {}
+
+void SphereView::RayAxis([[maybe_unused]] uint32_t time,
+    [[maybe_unused]] uint32_t axis, float value) {
+  auto transform = GetTransformMatrix();
+  sphere_->r *= 1 - value / 100;
+  shader_->SetUniformVariable(
+      "transform", glm::scale(transform, glm::vec3(sphere_->r)));
+  component_->Attach(shader_);
+  virtual_object_->ScheduleNextFrame();
+  update_geom_callback_(sphere_);
 }
 
-void SphereView::RayButton(
-    uint32_t serial, uint32_t time, uint32_t button, bool pressed) {
-  (void)serial;
-  (void)time;
-  (void)button;
-  (void)pressed;
-}
+void SphereView::RayFrame() {}
+
+void SphereView::RayAxisDiscrete(
+    [[maybe_unused]] uint32_t axis, [[maybe_unused]] int32_t discrete) {}
 
 void SphereView::DataDeviceEnter(
     uint32_t serial, std::weak_ptr<zukou::DataOffer> data_offer) {
@@ -185,6 +195,17 @@ void SphereView::SetTexture(std::string texture_url) {
                          std::placeholders::_1, std::placeholders::_2,
                          std::placeholders::_3, std::placeholders::_4)));
   }
+}
+
+void SphereView::UpdateSphereGeometry(std::shared_ptr<model::Sphere> sphere) {
+  sphere_->position = sphere->position;
+  sphere->r = sphere->r;
+  auto transform = GetTransformMatrix();
+  shader_->SetUniformVariable(
+      "transform", glm::scale(transform, glm::vec3(sphere_->r)));
+  component_->Attach(shader_);
+  virtual_object_->ScheduleNextFrame();
+  std::cerr << "called!!!" << std::endl;
 }
 
 glm::mat4 SphereView::GetTransformMatrix() {

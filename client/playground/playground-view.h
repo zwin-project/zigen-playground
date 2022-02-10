@@ -27,6 +27,10 @@ class PlaygroundView : public zukou::objects::IObject {
       glm::vec3 origin, glm::vec3 direction, uint32_t time) override final;
   virtual void RayButton(uint32_t serial, uint32_t time, uint32_t button,
       bool pressed) override final;
+  virtual void RayAxis(
+      uint32_t time, uint32_t axis, float value) override final;
+  virtual void RayFrame() override final;
+  virtual void RayAxisDiscrete(uint32_t axis, int32_t discrete) override final;
 
   virtual void DataDeviceEnter(uint32_t serial,
       std::weak_ptr<zukou::DataOffer> data_offer) override final;
@@ -44,6 +48,7 @@ class PlaygroundView : public zukou::objects::IObject {
 
   void AddResource(std::shared_ptr<model::Resource> resource);
   void UpdateTexture(uint64_t resource_id, std::string texture_url);
+  void UpdateGeom(std::shared_ptr<model::Resource> resource);
 
   // callbacks
   std::function<void(std::string resource_type, glm::vec3 position)>
@@ -51,6 +56,9 @@ class PlaygroundView : public zukou::objects::IObject {
 
   std::function<void(uint64_t resource_id, std::string url)>
       dnd_new_texture_callback;
+
+  std::function<void(std::shared_ptr<model::Sphere>)>
+      update_sphere_geom_callback;
 
  private:
   std::shared_ptr<zukou::Application> app_;

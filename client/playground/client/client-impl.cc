@@ -18,6 +18,8 @@
 #include "message/noop-event.h"
 #include "message/sync-event.h"
 #include "message/sync-request.h"
+#include "message/update-geom-event.h"
+#include "message/update-geom-request.h"
 #include "messaging.h"
 
 namespace zigen_playground {
@@ -99,6 +101,11 @@ void Client::Impl::NewTextureRequest(uint64_t resource_id, std::string url) {
   NotifyRequest(request);
 }
 
+void Client::Impl::UpdateSphereGeom(std::shared_ptr<model::Sphere> sphere) {
+  auto request = std::make_shared<message::UpdateGeomRequest>(sphere);
+  NotifyRequest(request);
+}
+
 void Client::Impl::OnEvent() {
   char buffer[1000];
   int ret = read(event_pipe_[0], buffer, sizeof(buffer));
@@ -154,6 +161,11 @@ void Client::Impl::OnEvent() {
         uint64_t resource_id = new_texture_event.GetResourceId();
         std::string texture_url = new_texture_event.GetTextureUrl();
         new_texture_event_signal(resource_id, texture_url);
+      } else if (handling_event_ == message::Action::kUpdateGeomEvent) {
+        auto update_geom_event = message::UpdateGeomEvent();
+        update_geom_event.Load(data);
+        auto resource = update_geom_event.GetResource();
+        update_geom_event_signal(resource);
       }
 
       free(data);
@@ -252,6 +264,11 @@ void Client::Impl::Run() {
               auto new_texture_request = message::NewTextureRequest();
               new_texture_request.Load(data);
               messaging->Write(new_texture_request.ToJson());
+            } else if (handling_request ==
+                       message::Action::kUpdateGeomRequest) {
+              auto update_sphere_geom_request = message::UpdateGeomRequest();
+              update_sphere_geom_request.Load(data);
+              messaging->Write(update_sphere_geom_request.ToJson());
             }
 
             free(data);

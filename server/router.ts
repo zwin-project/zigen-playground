@@ -3,6 +3,7 @@ import WebSocketRequest from './request/request'
 import { syncController } from './controller/sync'
 import { newResourceController } from './controller/new_resource'
 import { newTextureController } from './controller/new_texture'
+import { updateGeomController } from './controller/update_geom'
 
 class Router {
   add = (client: Client) => {
@@ -20,6 +21,8 @@ class Router {
       newResourceController(client, request)
     } else if (request.action === 'new-texture') {
       newTextureController(client, request)
+    } else if (request.action === 'update-geom') {
+      updateGeomController(client, request)
     } else {
       client.close(1011, 'Internal Server Error')
     }
