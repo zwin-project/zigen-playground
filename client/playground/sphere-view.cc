@@ -253,7 +253,7 @@ void SphereView::SetTexture(std::string texture_url) {
 
 void SphereView::UpdateSphereGeometry(std::shared_ptr<model::Sphere> sphere) {
   sphere_->position = sphere->position;
-  sphere->r = sphere->r;
+  sphere_->r = sphere->r;
   auto transform = GetTransformMatrix();
   shader_->SetUniformVariable(
       "transform", glm::scale(transform, glm::vec3(sphere_->r)));
