@@ -26,9 +26,11 @@ Playground::Playground(std::shared_ptr<zukou::Application> app,
       user_id_(user_id) {}
 
 void Playground::SetGeometry(
-    glm::vec3 half_size, glm::vec3 position, glm::quat quaternion) {
-  view_->SetGeometry(half_size, position, quaternion);
+    float r, glm::vec3 position, glm::quat quaternion) {
+  view_->SetGeometry(r, position, quaternion);
 }
+
+void Playground::ShowFrame(bool show) { view_->ShowFrame(show); }
 
 bool Playground::Init() {
   auto self = shared_from_this();
@@ -60,7 +62,10 @@ bool Playground::Init() {
   return view_->Init();
 }
 
-bool Playground::Draw() { return view_->Draw(); }
+bool Playground::Draw() {
+  view_->Draw();
+  return true;
+}
 
 float Playground::Intersect(glm::vec3 origin, glm::vec3 direction) {
   return view_->Intersect(origin, direction);

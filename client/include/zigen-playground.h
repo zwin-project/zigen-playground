@@ -28,8 +28,8 @@ class Playground : public std::enable_shared_from_this<Playground>,
       std::string remote_host, std::string remote_port, std::string user_id);
 
  public:
-  void SetGeometry(
-      glm::vec3 half_size, glm::vec3 position, glm::quat quaternion);
+  void SetGeometry(float r, glm::vec3 position, glm::quat quaternion);
+  void ShowFrame(bool show);
 
   virtual bool Init() final;
   virtual bool Draw() final;

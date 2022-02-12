@@ -41,8 +41,8 @@ class PlaygroundView : public zukou::objects::IObject {
 
   void TextDropped(int fd);
 
-  void SetGeometry(
-      glm::vec3 half_size, glm::vec3 position, glm::quat quaternion);
+  void SetGeometry(float r, glm::vec3 position, glm::quat quaternion);
+  void ShowFrame(bool show);
 
   void Sync(std::vector<std::shared_ptr<model::Resource>> resources);
 
@@ -66,7 +66,7 @@ class PlaygroundView : public zukou::objects::IObject {
   std::shared_ptr<zukou::objects::ObjectGroup> object_group_;
   std::vector<std::shared_ptr<CuboidView>> cuboid_views_;
   std::vector<std::shared_ptr<SphereView>> sphere_views_;
-  glm::vec3 half_size_;
+  float r_;
   glm::vec3 position_;
   glm::quat quaternion_;
 
@@ -77,6 +77,8 @@ class PlaygroundView : public zukou::objects::IObject {
 
   std::string remote_host_;
   std::string remote_port_;
+
+  std::shared_ptr<zukou::primitives::FrameSphere> frame_;
 };
 
 }  // namespace zigen_playground

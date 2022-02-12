@@ -84,16 +84,14 @@ bool SphereView::Init() {
 bool SphereView::Draw() { return true; }
 
 float SphereView::Intersect(glm::vec3 origin, glm::vec3 direction) {
-  (void)origin;
-  (void)direction;
+  glm::vec3 intersect_point, norm;
+  glm::vec4 global_position = GetTransformMatrix() * glm::vec4(0, 0, 0, 1);
 
-  glm::vec3 position, norm;
-
-  if (glm::intersectRaySphere(origin, direction, sphere_->position, sphere_->r,
-          position, norm) == false)
+  if (glm::intersectRaySphere(origin, direction, glm::vec3(global_position),
+          sphere_->r, intersect_point, norm) == false)
     return -1;
 
-  return glm::length(position - origin);
+  return glm::length(intersect_point - origin);
 }
 
 void SphereView::RayEnter() {
@@ -110,11 +108,20 @@ void SphereView::RayLeave() {
 void SphereView::RayMotion(
     glm::vec3 origin, glm::vec3 direction, [[maybe_unused]] uint32_t time) {
   if (left_click_ && previous_ray_is_valid_ && dragging_distance_ > 0) {
-    glm::vec3 old_tip =
-        previous_ray_origin_ + previous_ray_direction_ * dragging_distance_;
-    glm::vec3 new_tip = origin + direction * dragging_distance_;
-    glm::vec3 delta = new_tip - old_tip;
+    glm::mat4 parent_transform(1);
+    parent_transform = glm::translate(parent_transform, parent_position_);
+    parent_transform = parent_transform * glm::toMat4(parent_quaternion_);
+    auto trans_inv = glm::inverse(parent_transform);
+
+    auto old_tip = glm::vec4(
+        previous_ray_origin_ + previous_ray_direction_ * dragging_distance_, 0);
+    old_tip = trans_inv * old_tip;
+
+    auto new_tip =
+        trans_inv * glm::vec4(origin + direction * dragging_distance_, 0);
+    auto delta = glm::vec3(new_tip - old_tip);
     sphere_->position += delta;
+
     auto transform = GetTransformMatrix();
     shader_->SetUniformVariable(
         "transform", glm::scale(transform, glm::vec3(sphere_->r)));
@@ -146,13 +153,24 @@ void SphereView::RayAxis([[maybe_unused]] uint32_t time,
     [[maybe_unused]] uint32_t axis, float value) {
   if (left_click_) {
     if (previous_ray_is_valid_ && dragging_distance_ > 0) {
-      glm::vec3 old_tip =
-          previous_ray_origin_ + previous_ray_direction_ * dragging_distance_;
+      glm::mat4 parent_transform(1);
+      parent_transform = glm::translate(parent_transform, parent_position_);
+      parent_transform = parent_transform * glm::toMat4(parent_quaternion_);
+      auto trans_inv = glm::inverse(parent_transform);
+
+      auto old_tip =
+          trans_inv * glm::vec4(previous_ray_origin_ + previous_ray_direction_ *
+                                                           dragging_distance_,
+                          0);
       dragging_distance_ *= (1 - value / 500);
-      glm::vec3 new_tip =
-          previous_ray_origin_ + previous_ray_direction_ * dragging_distance_;
-      glm::vec3 delta = new_tip - old_tip;
+      auto new_tip =
+          trans_inv * glm::vec4(previous_ray_origin_ + previous_ray_direction_ *
+                                                           dragging_distance_,
+                          0);
+
+      glm::vec3 delta = glm::vec3(new_tip - old_tip);
       sphere_->position += delta;
+
       auto transform = GetTransformMatrix();
       shader_->SetUniformVariable(
           "transform", glm::scale(transform, glm::vec3(sphere_->r)));
@@ -398,7 +416,7 @@ SphereView::CreateFrameElementArrayBuffer(
 std::shared_ptr<zukou::OpenGLElementArrayBuffer>
 SphereView::CreateTextureElementArrayBuffer(
     uint32_t resolution, uint32_t *count) {
-  uint32_t poll_element_count = 3 * 4 * resolution;
+  uint32_t poll_element_count = 3 * 4 * resolution * 2;
   uint32_t other_element_count = (2 * resolution - 2) * (4 * resolution) * 6;
 
   *count = poll_element_count + other_element_count;

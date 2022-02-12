@@ -3,6 +3,7 @@
 #include <zigen-client-protocol.h>
 #include <zigen-playground.h>
 
+#include <glm/gtx/intersect.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 #include "dnd-message-parser.h"
@@ -20,15 +21,20 @@ PlaygroundView::PlaygroundView(std::shared_ptr<zukou::Application> app,
 
 bool PlaygroundView::Init() { return object_group_->Init(); }
 
-bool PlaygroundView::Draw() { return object_group_->Draw(); }
+bool PlaygroundView::Draw() {
+  if (frame_) frame_->Draw();
+  object_group_->Draw();
+  return true;
+}
 
 float PlaygroundView::Intersect(glm::vec3 origin, glm::vec3 direction) {
-  glm::mat4 transform(1);
-  transform = glm::translate(transform, position_);
-  transform = transform * glm::toMat4(quaternion_);
+  glm::vec3 position, norm;
 
-  return zukou::entities::intersection::ray_obb(
-      origin, direction, half_size_, transform);
+  if (glm::intersectRaySphere(
+          origin, direction, position_, r_, position, norm) == false)
+    return -1;
+
+  return glm::length(position - origin);
 }
 
 void PlaygroundView::RayEnter() {}
@@ -120,13 +126,19 @@ void PlaygroundView::TextDropped(int fd) {
     auto new_resource_message =
         std::dynamic_pointer_cast<DndNewResourceMessage>(message);
 
+    glm::vec3 intersection_point, norm;
+
     glm::mat4 transform(1);
     transform = glm::translate(transform, position_);
     transform = transform * glm::toMat4(quaternion_);
 
+    if (glm::intersectRaySphere(last_data_device_origin_,
+            last_data_device_direction_, position_, r_, intersection_point,
+            norm) == false)
+      return;
+
     float ray_distance =
-        zukou::entities::intersection::ray_obb(last_data_device_origin_,
-            last_data_device_direction_, half_size_, transform);
+        glm::length(intersection_point - last_data_device_origin_);
 
     auto position = last_data_device_origin_ +
                     last_data_device_direction_ * (ray_distance + 0.04f);
@@ -137,8 +149,8 @@ void PlaygroundView::TextDropped(int fd) {
 }
 
 void PlaygroundView::SetGeometry(
-    glm::vec3 half_size, glm::vec3 position, glm::quat quaternion) {
-  half_size_ = half_size;
+    float r, glm::vec3 position, glm::quat quaternion) {
+  r_ = r;
   position_ = position;
   quaternion_ = quaternion;
 
@@ -146,6 +158,27 @@ void PlaygroundView::SetGeometry(
     cuboid_view->SetGeometry(position, quaternion);
   for (auto sphere_view : sphere_views_)
     sphere_view->SetGeometry(position, quaternion);
+
+  if (frame_) {
+    frame_->set_position(position);
+    frame_->set_quaternion(quaternion);
+    frame_->set_radius(r);
+  }
+}
+
+void PlaygroundView::ShowFrame(bool show) {
+  if (show) {
+    frame_ = std::make_shared<zukou::primitives::FrameSphere>(
+        app_, virtual_object_, 10);
+    frame_->Init();
+    frame_->set_frame_color(glm::vec4(0.0, 1.0, 1.0, 1.0));
+    frame_->set_position(position_);
+    frame_->set_quaternion(quaternion_);
+    frame_->set_radius(r_);
+  } else {
+    frame_.reset();
+  }
+  virtual_object_->ScheduleNextFrame();
 }
 
 void PlaygroundView::Sync(
