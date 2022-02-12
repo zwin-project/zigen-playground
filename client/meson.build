@@ -7,4 +7,4 @@ public_inc = include_directories('include')
 
 subdir('protocol')
 subdir('playground')
-subdir('sample')
+subdir('main')
