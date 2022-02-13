@@ -80,6 +80,7 @@ class SphereView : public zukou::objects::IObject {
   glm::vec3 previous_ray_direction_;
   bool previous_ray_is_valid_;
   float dragging_distance_;
+  float ray_distance_;
 
   std::weak_ptr<zukou::DataOffer> data_offer_;
   uint32_t data_device_enter_serial_;

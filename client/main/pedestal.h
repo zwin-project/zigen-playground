@@ -54,6 +54,7 @@ class Pedestal : public zukou::objects::IObject {
   uint32_t resolution_;
   uint32_t threshold_;
   glm::vec3 position_;
+  float ray_distance_;
 
   std::shared_ptr<zukou::OpenGLComponent> component_;
   std::shared_ptr<zukou::OpenGLShaderProgram> shader_;

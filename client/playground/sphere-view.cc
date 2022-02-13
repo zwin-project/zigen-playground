@@ -91,7 +91,9 @@ float SphereView::Intersect(glm::vec3 origin, glm::vec3 direction) {
           sphere_->r, intersect_point, norm) == false)
     return -1;
 
-  return glm::length(intersect_point - origin);
+  ray_distance_ = glm::length(intersect_point - origin);
+
+  return ray_distance_;
 }
 
 void SphereView::RayEnter() {
@@ -107,6 +109,7 @@ void SphereView::RayLeave() {
 
 void SphereView::RayMotion(
     glm::vec3 origin, glm::vec3 direction, [[maybe_unused]] uint32_t time) {
+  app_->SetRayLength(ray_distance_);
   if (left_click_ && previous_ray_is_valid_ && dragging_distance_ > 0) {
     glm::mat4 parent_transform(1);
     parent_transform = glm::translate(parent_transform, parent_position_);
@@ -203,6 +206,7 @@ void SphereView::DataDeviceLeave() { data_offer_.reset(); }
 
 void SphereView::DataDeviceMotion([[maybe_unused]] uint32_t time,
     [[maybe_unused]] glm::vec3 origin, [[maybe_unused]] glm::vec3 direction) {
+  app_->SetDataDeviceLength(ray_distance_);
   if (auto data_offer = data_offer_.lock()) {
     for (auto mime_type : data_offer->mime_types()) {
       if (mime_type == "text/plain") {

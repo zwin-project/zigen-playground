@@ -87,7 +87,7 @@ float Pedestal::Intersect(glm::vec3 origin, glm::vec3 direction) {
       cos(M_PI_2 / (float)resolution_ * (float)threshold_) * radius_;
 
   if ((-radius_ < y && y < -threshold_y) || (threshold_y < y && y < radius_)) {
-    return glm::length(intersect_point - origin);
+    ray_distance_ = glm::length(intersect_point - origin);
   } else {
     float len = direction[1] > 0 ? (threshold_y - origin[1]) / direction[1]
                                  : (-threshold_y - origin[1]) / direction[1];
@@ -95,11 +95,13 @@ float Pedestal::Intersect(glm::vec3 origin, glm::vec3 direction) {
     float z = origin[2] + direction[2] * len;
 
     if (x * x + z * z < radius_ * radius_ - threshold_y * threshold_y) {
-      return len;
+      ray_distance_ = len;
     } else {
       return -1;
     }
   }
+
+  return ray_distance_;
 }
 
 void Pedestal::RayEnter() {
@@ -118,7 +120,7 @@ void Pedestal::RayMotion(glm::vec3 origin, glm::vec3 direction, uint32_t time) {
   (void)origin;
   (void)direction;
   (void)time;
-  std::cerr << "motion" << std::endl;
+  app_->SetRayLength(ray_distance_);
 }
 
 void Pedestal::RayButton(
