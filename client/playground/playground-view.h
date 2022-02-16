@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "cuboid-view.h"
+#include "ray-view.h"
 #include "sphere-view.h"
 
 namespace zigen_playground {
@@ -49,6 +50,8 @@ class PlaygroundView : public zukou::objects::IObject {
   void AddResource(std::shared_ptr<model::Resource> resource);
   void UpdateTexture(uint64_t resource_id, std::string texture_url);
   void UpdateGeom(std::shared_ptr<model::Resource> resource);
+  void RemoveRay(uint64_t client_id);
+  void MoveRay(std::shared_ptr<model::Ray> ray);
 
   // callbacks
   std::function<void(std::string resource_type, glm::vec3 position)>
@@ -60,15 +63,25 @@ class PlaygroundView : public zukou::objects::IObject {
   std::function<void(std::shared_ptr<model::Sphere>)>
       update_sphere_geom_callback;
 
+  std::function<void(glm::vec3 origin, glm::vec3 target)> update_ray_callback;
+
+ private:
+  void NotifyRayChange();
+
  private:
   std::shared_ptr<zukou::Application> app_;
   std::shared_ptr<zukou::VirtualObject> virtual_object_;
   std::shared_ptr<zukou::objects::ObjectGroup> object_group_;
   std::vector<std::shared_ptr<CuboidView>> cuboid_views_;
   std::vector<std::shared_ptr<SphereView>> sphere_views_;
+  std::vector<std::shared_ptr<RayView>> ray_views_;
   float r_;
   glm::vec3 position_;
   glm::quat quaternion_;
+  float ray_distance_;
+
+  glm::vec3 ray_origin_;
+  glm::vec3 ray_direction_;
 
   glm::vec3 last_data_device_origin_;
   glm::vec3 last_data_device_direction_;

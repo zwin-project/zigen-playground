@@ -4,6 +4,7 @@ import { syncController } from './controller/sync'
 import { newResourceController } from './controller/new_resource'
 import { newTextureController } from './controller/new_texture'
 import { updateGeomController } from './controller/update_geom'
+import { updateRayController } from './controller/update_ray'
 
 class Router {
   add = (client: Client) => {
@@ -23,6 +24,8 @@ class Router {
       newTextureController(client, request)
     } else if (request.action === 'update-geom') {
       updateGeomController(client, request)
+    } else if (request.action === 'update-ray') {
+      updateRayController(client, request)
     } else {
       client.close(1011, 'Internal Server Error')
     }

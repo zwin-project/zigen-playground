@@ -4,6 +4,7 @@ subdir('client')
 
 shader_inputs = {
   'cuboid': ['vert', 'frag'],
+  'ray': ['vert', 'frag'],
   'sphere': ['vert', 'frag'],
   'sphere-textured': ['frag']
 }
@@ -41,6 +42,7 @@ srcs_zigen_playground = [
   'playground.cc',
   'playground-view.cc',
   'image-downloader.cc',
+  'ray-view.cc',
   'sphere-view.cc',
   zigen_client_protocol_h,
   zigen_shell_client_protocol_h,

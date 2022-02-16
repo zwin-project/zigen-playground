@@ -14,6 +14,7 @@ namespace zigen_playground {
 namespace model {
 class Resource;
 class Sphere;
+class Ray;
 }  // namespace model
 
 class PlaygroundView;
@@ -67,6 +68,8 @@ class Playground : public std::enable_shared_from_this<Playground>,
   void NewResourceEvent(std::shared_ptr<model::Resource> resource);
   void NewTextureEvent(uint64_t resource_id, std::string url);
   void UpdataGeomEvent(std::shared_ptr<model::Resource> resource);
+  void RemoveRayEvent(uint64_t client_id);
+  void MoveRayEvent(std::shared_ptr<model::Ray> ray);
   void ClientErrorEvent(std::string reason);
 
   void DndNewResource(std::string resource_type, glm::vec3 position);
@@ -74,6 +77,7 @@ class Playground : public std::enable_shared_from_this<Playground>,
   void DndNewTexture(uint64_t resource_id, std::string url);
 
   void UpdateSphereGeom(std::shared_ptr<model::Sphere> sphere);
+  void UpdateRay(glm::vec3 origin, glm::vec3 target);
 
  private:
   std::shared_ptr<zukou::Application> app_;

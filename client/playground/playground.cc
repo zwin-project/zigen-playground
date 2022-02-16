@@ -47,6 +47,10 @@ bool Playground::Init() {
       self, std::placeholders::_1, std::placeholders::_2));
   client_->ConnectUpdateGeomEventSignal(
       std::bind(&Playground::UpdataGeomEvent, self, std::placeholders::_1));
+  client_->ConnectRemoveRayEventSignal(
+      std::bind(&Playground::RemoveRayEvent, self, std::placeholders::_1));
+  client_->ConnectMoveRayEventSignal(
+      std::bind(&Playground::MoveRayEvent, self, std::placeholders::_1));
   client_->ConnectErrorSignal(
       std::bind(&Playground::ClientErrorEvent, self, std::placeholders::_1));
 
@@ -56,6 +60,8 @@ bool Playground::Init() {
       std::placeholders::_1, std::placeholders::_2);
   view_->update_sphere_geom_callback =
       std::bind(&Playground::UpdateSphereGeom, self, std::placeholders::_1);
+  view_->update_ray_callback = std::bind(&Playground::UpdateRay, self,
+      std::placeholders::_1, std::placeholders::_2);
 
   if (client_->Connect() == false) return false;
   client_->SyncRequest();
@@ -133,6 +139,16 @@ void Playground::UpdataGeomEvent(std::shared_ptr<model::Resource> resource) {
   view_->UpdateGeom(resource);
 }
 
+void Playground::RemoveRayEvent(uint64_t client_id) {
+  std::cerr << "[event] remove ray" << std::endl;
+  view_->RemoveRay(client_id);
+}
+
+void Playground::MoveRayEvent(std::shared_ptr<model::Ray> ray) {
+  std::cerr << "[event] move ray" << std::endl;
+  view_->MoveRay(ray);
+}
+
 void Playground::Connect([[maybe_unused]] const error_signal signal,
     const std::function<void(std::string)> &slot) {
   error_callback_ = slot;
@@ -157,6 +173,11 @@ void Playground::DndNewTexture(uint64_t resource_id, std::string url) {
 void Playground::UpdateSphereGeom(std::shared_ptr<model::Sphere> sphere) {
   std::cerr << "[action event] update sphere geom" << std::endl;
   client_->UpdateSphereGeom(sphere);
+}
+
+void Playground::UpdateRay(glm::vec3 origin, glm::vec3 target) {
+  std::cerr << "[action event] update ray" << std::endl;
+  client_->UpdateRay(origin, target);
 }
 
 }  // namespace zigen_playground
