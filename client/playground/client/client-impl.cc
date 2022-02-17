@@ -20,6 +20,8 @@
 #include "message/sync-request.h"
 #include "message/update-geom-event.h"
 #include "message/update-geom-request.h"
+#include "message/update-ray-event.h"
+#include "message/update-ray-request.h"
 #include "messaging.h"
 
 namespace zigen_playground {
@@ -106,6 +108,11 @@ void Client::Impl::UpdateSphereGeom(std::shared_ptr<model::Sphere> sphere) {
   NotifyRequest(request);
 }
 
+void Client::Impl::UpdateRay(glm::vec3 origin, glm::vec3 target) {
+  auto request = std::make_shared<message::UpdateRayRequest>(origin, target);
+  NotifyRequest(request);
+}
+
 void Client::Impl::OnEvent() {
   char buffer[1000];
   int ret = read(event_pipe_[0], buffer, sizeof(buffer));
@@ -166,6 +173,16 @@ void Client::Impl::OnEvent() {
         update_geom_event.Load(data);
         auto resource = update_geom_event.GetResource();
         update_geom_event_signal(resource);
+      } else if (handling_event_ == message::Action::kUpdateRayEvent) {
+        auto update_ray_event = message::UpdateRayEvent();
+        update_ray_event.Load(data);
+        auto type = update_ray_event.GetType();
+        auto ray = update_ray_event.GetRay();
+        if (type == "destroy") {
+          remove_ray_signal(ray->client_id);
+        } else if (type == "move") {
+          move_ray_signal(ray);
+        }
       }
 
       free(data);
@@ -269,6 +286,10 @@ void Client::Impl::Run() {
               auto update_sphere_geom_request = message::UpdateGeomRequest();
               update_sphere_geom_request.Load(data);
               messaging->Write(update_sphere_geom_request.ToJson());
+            } else if (handling_request == message::Action::kUpdateRayRequest) {
+              auto update_ray_request = message::UpdateRayRequest();
+              update_ray_request.Load(data);
+              messaging->Write(update_ray_request.ToJson());
             }
 
             free(data);

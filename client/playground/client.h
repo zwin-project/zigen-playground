@@ -32,13 +32,19 @@ class Client : public std::enable_shared_from_this<Client> {
       std::function<void(std::shared_ptr<model::Resource>)> observer);
   void ConnectNewTextureEventSignal(
       std::function<void(uint64_t resource_id, std::string url)> observer);
-  void ConnectUpdateGeomEventSignal(std::function<void(std::shared_ptr<model::Resource>)> observer);
+  void ConnectUpdateGeomEventSignal(
+      std::function<void(std::shared_ptr<model::Resource>)> observer);
+  void ConnectRemoveRayEventSignal(
+      std::function<void(uint64_t client_id)> observer);
+  void ConnectMoveRayEventSignal(
+      std::function<void(std::shared_ptr<model::Ray>)> observer);
   void ConnectErrorSignal(std::function<void(std::string)> observer);
 
   void SyncRequest();
   void NewResourceRequest(std::string resource_type, glm::vec3 position);
   void NewTextureRequest(uint64_t resource_id, std::string url);
   void UpdateSphereGeom(std::shared_ptr<model::Sphere> sphere);
+  void UpdateRay(glm::vec3 origin, glm::vec3 target);
 
  private:
   Client(std::shared_ptr<zukou::Application> app, std::string remote_host,

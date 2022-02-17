@@ -33,6 +33,10 @@ void Client::UpdateSphereGeom(std::shared_ptr<model::Sphere> sphere) {
   pimpl_->UpdateSphereGeom(sphere);
 }
 
+void Client::UpdateRay(glm::vec3 origin, glm::vec3 target) {
+  pimpl_->UpdateRay(origin, target);
+}
+
 void Client::ConnectNoopEventSignal(std::function<void()> observer) {
   pimpl_->noop_event_signal.connect(observer);
 }
@@ -51,6 +55,16 @@ void Client::ConnectNewResourceEventSignal(
 void Client::ConnectNewTextureEventSignal(
     std::function<void(uint64_t resource_id, std::string url)> observer) {
   pimpl_->new_texture_event_signal.connect(observer);
+}
+
+void Client::ConnectRemoveRayEventSignal(
+    std::function<void(uint64_t client_id)> observer) {
+  pimpl_->remove_ray_signal.connect(observer);
+}
+
+void Client::ConnectMoveRayEventSignal(
+    std::function<void(std::shared_ptr<model::Ray>)> observer) {
+  pimpl_->move_ray_signal.connect(observer);
 }
 
 void Client::ConnectUpdateGeomEventSignal(

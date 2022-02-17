@@ -2,6 +2,8 @@ import http from 'http'
 import User from './user'
 import { WebSocket } from 'ws'
 import Playground from './playground'
+import { Vector3 } from '../math/vector'
+import UpdateRayEvent from '../event/update_ray'
 
 interface Client {
   onRequest: (func: (client: Client, message: string) => void) => void
@@ -9,6 +11,12 @@ interface Client {
   close: (code?: number, data?: string) => void
 
   send: (msg: string) => void
+
+  setRay: (origin: Vector3, target: Vector3) => void
+
+  getRay: () => { origin: Vector3; target: Vector3 } | null
+
+  getId: () => number
 }
 
 export class WebSocketClient implements Client {
@@ -21,9 +29,17 @@ export class WebSocketClient implements Client {
     return new WebSocketClient(user, ws)
   }
 
+  static nextId = 1
+
+  rayOrigin?: Vector3
+  rayTarget?: Vector3
+  id: number
+
   private constructor(public user: User, private ws: WebSocket) {
     ws.on('close', this.onClose)
     const playground = Playground.get()
+    this.id = WebSocketClient.nextId
+    WebSocketClient.nextId += 1
     playground.pushClient(this)
   }
 
@@ -31,6 +47,14 @@ export class WebSocketClient implements Client {
   private onClose = (code: number, reason: Buffer) => {
     const playground = Playground.get()
     playground.removeClient(this)
+    playground.forEachClients((c) => {
+      const event = new UpdateRayEvent(
+        'destroy',
+        new Vector3(0, 0, 0),
+        new Vector3(0, 0, 0)
+      )
+      event.send(c)
+    })
   }
 
   onRequest = (func: (client: Client, message: string) => void) => {
@@ -47,6 +71,21 @@ export class WebSocketClient implements Client {
   send = (msg: string) => {
     this.ws.send(msg)
   }
+
+  setRay = (origin: Vector3, target: Vector3) => {
+    this.rayOrigin = origin
+    this.rayTarget = target
+  }
+
+  getRay = () => {
+    if (this.rayOrigin && this.rayTarget) {
+      return { origin: this.rayOrigin, target: this.rayTarget }
+    } else {
+      return null
+    }
+  }
+
+  getId = () => this.id
 }
 
 export default Client

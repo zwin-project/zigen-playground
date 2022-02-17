@@ -16,6 +16,8 @@ srcs_zigen_playground_client = [
   'message/noop-event.cc',
   'message/update-geom-request.cc',
   'message/update-geom-event.cc',
+  'message/update-ray-request.cc',
+  'message/update-ray-event.cc',
   'message/sync-event.cc',
   'message/sync-request.cc',
 ]

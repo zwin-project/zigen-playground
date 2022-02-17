@@ -40,6 +40,15 @@ struct Sphere : public Resource {
   std::string texture_url;
 };
 
+struct Ray {
+  Ray(uint64_t client_id, glm::vec3 origin, glm::vec3 target)
+      : client_id(client_id), origin(origin), target(target) {}
+
+  uint64_t client_id;
+  glm::vec3 origin;
+  glm::vec3 target;
+};
+
 }  // namespace model
 }  // namespace zigen_playground
 

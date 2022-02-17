@@ -24,6 +24,7 @@ bool PlaygroundView::Init() { return object_group_->Init(); }
 bool PlaygroundView::Draw() {
   if (frame_) frame_->Draw();
   object_group_->Draw();
+  for (auto ray_view : ray_views_) ray_view->Draw();
   return true;
 }
 
@@ -34,7 +35,9 @@ float PlaygroundView::Intersect(glm::vec3 origin, glm::vec3 direction) {
           origin, direction, position_, r_, position, norm) == false)
     return -1;
 
-  return glm::length(position - origin);
+  ray_distance_ = glm::length(position - origin);
+
+  return ray_distance_;
 }
 
 void PlaygroundView::RayEnter() {}
@@ -43,7 +46,12 @@ void PlaygroundView::RayLeave() { object_group_->RayLeave(); }
 
 void PlaygroundView::RayMotion(
     glm::vec3 origin, glm::vec3 direction, uint32_t time) {
+  ray_origin_ = origin;
+  ray_direction_ = direction;
+
   object_group_->RayMotion(origin, direction, time);
+
+  this->NotifyRayChange();
 }
 
 void PlaygroundView::RayButton(
@@ -53,6 +61,7 @@ void PlaygroundView::RayButton(
 
 void PlaygroundView::RayAxis(uint32_t time, uint32_t axis, float value) {
   object_group_->RayAxis(time, axis, value);
+  this->NotifyRayChange();
 }
 
 void PlaygroundView::RayFrame() { object_group_->RayFrame(); }
@@ -158,12 +167,15 @@ void PlaygroundView::SetGeometry(
     cuboid_view->SetGeometry(position, quaternion);
   for (auto sphere_view : sphere_views_)
     sphere_view->SetGeometry(position, quaternion);
+  for (auto ray_view : ray_views_) ray_view->SetGeometry(position, quaternion);
 
   if (frame_) {
     frame_->set_position(position);
     frame_->set_quaternion(quaternion);
     frame_->set_radius(r);
   }
+
+  this->NotifyRayChange();
 }
 
 void PlaygroundView::ShowFrame(bool show) {
@@ -257,6 +269,51 @@ void PlaygroundView::UpdateGeom(std::shared_ptr<model::Resource> resource) {
       }
     }
   }
+}
+
+void PlaygroundView::RemoveRay(uint64_t client_id) {
+  auto it = ray_views_.begin();
+  while (it != ray_views_.end()) {
+    if ((*it)->GetId() == client_id) {
+      ray_views_.erase(it);
+      return;
+    }
+  }
+  virtual_object_->ScheduleNextFrame();
+}
+
+void PlaygroundView::MoveRay(std::shared_ptr<model::Ray> ray) {
+  for (auto ray_view : ray_views_) {
+    if (ray_view->GetId() == ray->client_id) {
+      ray_view->UpdateRay(ray);
+      virtual_object_->ScheduleNextFrame();
+      return;
+    }
+  }
+
+  auto ray_view = std::make_shared<RayView>(app_, virtual_object_, ray);
+  ray_view->Init();
+  ray_view->SetGeometry(position_, quaternion_);
+  ray_views_.push_back(ray_view);
+  virtual_object_->ScheduleNextFrame();
+}
+
+void PlaygroundView::NotifyRayChange() {
+  glm::vec3 origin_tip = ray_origin_ + ray_direction_ * ray_distance_;
+  float target_distance = object_group_->Intersect(ray_origin_, ray_direction_);
+  target_distance =
+      target_distance <= 0 ? ray_distance_ + 0.5 : target_distance;
+  glm::vec3 target_tip = ray_origin_ + ray_direction_ * target_distance;
+
+  glm::mat4 transform(1);
+  transform = glm::translate(transform, position_);
+  transform = transform * glm::toMat4(quaternion_);
+  transform = glm::inverse(transform);
+
+  origin_tip = transform * glm::vec4(origin_tip, 1.0f);
+  target_tip = transform * glm::vec4(target_tip, 1.0f);
+
+  update_ray_callback(origin_tip, target_tip);
 }
 
 }  // namespace zigen_playground
